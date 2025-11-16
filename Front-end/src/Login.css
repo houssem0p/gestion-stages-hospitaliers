@@ -1,0 +1,173 @@
+/* Login.css */
+/* Main container */
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #e9e9e9 0%, #f5f5f5 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+/* White curved bottom background */
+.login-container::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 220px;
+  background: white;
+  border-top-left-radius: 180px;
+  border-top-right-radius: 180px;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* LEFT SECTION */
+.left-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: 80px;
+  z-index: 2;
+}
+
+.left-section h1 {
+  font-size: 100px;
+  font-weight: 700;
+  color: #9bb4c9;
+  text-transform: lowercase;
+  letter-spacing: 3px;
+  margin: 0;
+  margin-left: 200px;
+  margin-bottom: 200px;
+  filter: drop-shadow(2px 2px 2px #d0d0d0);
+}
+
+/* RIGHT SECTION */
+.right-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  position: relative;
+}
+
+.login-content {
+  width: 420px;
+  padding: 40px;
+  background: linear-gradient(to bottom, #d2e6f8, #b9d6ef);
+  border-radius: 24px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px; /* Space for copyright */
+}
+
+/* Titles */
+.login-content h2 {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1d2c3b;
+  margin-bottom: 10px;
+  text-transform: lowercase;
+}
+
+.description {
+  text-align: center;
+  font-size: 14px;
+  color: #44576b;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #9cb6c9, transparent);
+  margin: 25px 0;
+}
+
+/* INPUT GROUPS */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #364b60;
+  margin-bottom: 8px;
+  text-transform: lowercase;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d7e3ee;
+  background: #ffffff;
+  color: #2a3b4e;
+  font-size: 15px;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.input-group input:focus {
+  border-color: #7b9dc2;
+  box-shadow: 0 2px 6px rgba(64, 100, 140, 0.2);
+  transform: translateY(-1px);
+}
+
+.input-group input::placeholder {
+  color: #9ca9b6;
+}
+
+/* BUTTON */
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #0b2e52;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-transform: lowercase;
+}
+
+.login-btn:hover {
+  background: #0d3a66;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(11, 46, 82, 0.3);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+/* Copyright text - positioned under the blue box */
+.copyright {
+  text-align: center;
+  font-size: 12px;
+  color: #6b7884;
+  margin-top: 10px;
+}
+
+/* --- LOGO AT BOTTOM LEFT --- */
+.logo-bottom-left {
+  position: absolute;
+  bottom: 0px; /* Adjust distance from bottom */
+  left: 380px;   /* Adjust distance from left */
+  z-index: 10;
+}
+
+.clinic-logo {
+  width: 332px; /* Increase or decrease size */
+  height: 211px;
+  object-fit: contain;
+}
+
