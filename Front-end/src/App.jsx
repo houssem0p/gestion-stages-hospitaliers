@@ -1,79 +1,89 @@
-import { useState } from "react";
-import logo from "./assets/39e82acc7d83121101fd8b44a3a843277ab9e11b.png"; 
-import "./Login.css";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './components/Login/Login';
+import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard';
+import DoctorDashboard from './components/Dashboard/DoctorDashboard';
+import StudentDashboard from './components/Dashboard/StudentDashboard';
+import HospitalDashboard from './components/Dashboard/HospitalDashboard';
+import './App.css';
 
-const Login = () => {
-  const [formData, setFormData] = useState({ idCard: "", password: "" });
+// Placeholder for TeacherDashboard (since it's missing)
+const TeacherDashboard = () => <div style={{ padding: '20px' }}><h1>Teacher Dashboard</h1><p>Teacher dashboard content goes here</p></div>;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login data:", formData);
-    // Add your login logic here
-  };
-
-  return (
-    <div className="login-container">
-      {/* Logo at bottom left */}
-      <div className="logo-bottom-left">
-        <img src={logo} alt="clinic logo" className="clinic-logo" />
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Checking authentication...
       </div>
+    );
+  }
 
-      {/* Left section with welcome message */}
-      <div className="left-section">
-        <h1>welcome</h1>
-      </div>
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
-      {/* Right section with login form */}
-      <div className="right-section">
-        <div className="login-content">
-          <h2>log in</h2>
-          <p className="description">Enter your credentials to access your account</p>
-
-          <div className="divider"></div>
-
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="input-group">
-              <h3>id card</h3>
-              <input
-                type="text"
-                name="idCard"
-                value={formData.idCard}
-                onChange={handleChange}
-                placeholder="enter your ID card here"
-                required
-              />
-            </div>
-
-            <div className="input-group">
-              <h3>password</h3>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="enter your password"
-                required
-              />
-            </div>
-
-            <div className="divider"></div>
-
-            <button type="submit" className="login-btn">
-              log in
-            </button>
-          </form>
-        </div>
-        
-        {/* Copyright positioned under the blue login box */}
-        <div className="copyright">copy right version 2025</div>
-      </div>
-    </div>
-  );
+  return children;
 };
 
-export default Login;
+// Dashboard router
+const DashboardRouter = () => {
+  const { user } = useAuth();
+
+  console.log('Current user:', user); // Debug log
+
+  switch (user?.role) {
+    case 'super_admin':
+      return <SuperAdminDashboard />;
+    case 'hospital_admin':
+      return <HospitalDashboard />;
+    case 'doctor':
+      return <DoctorDashboard />;
+    case 'teacher':
+      return <TeacherDashboard />;
+    case 'student':
+      return <StudentDashboard />;
+    default:
+      return (
+        <div style={{ padding: '20px' }}>
+          <h2>Access Denied</h2>
+          <p>No dashboard available for your role: {user?.role}</p>
+        </div>
+      );
+  }
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardRouter />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<Navigate to="/login" />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;
