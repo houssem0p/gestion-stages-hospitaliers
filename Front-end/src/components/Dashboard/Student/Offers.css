@@ -1,0 +1,439 @@
+/* Offers Page - Internship Listings with Filters - Redesigned */
+
+.offers-page {
+  padding: 20px;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #e9e9e9 0%, #f5f5f5 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+/* White curved bottom background */
+.offers-page::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 220px;
+  background: white;
+  border-top-left-radius: 180px;
+  border-top-right-radius: 180px;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.offers-page h1 {
+  color: #1d2c3b;
+  font-size: 3.5rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+  text-transform: lowercase;
+  text-align: center;
+  letter-spacing: 2px;
+  filter: drop-shadow(2px 2px 2px #d0d0d0);
+  position: relative;
+  z-index: 2;
+}
+
+.offers-container {
+  display: flex;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Filters Sidebar - Redesigned */
+.filters-sidebar {
+  width: 280px;
+  background: linear-gradient(to bottom, #d2e6f8, #b9d6ef);
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.filters-sidebar h3 {
+  color: #1d2c3b;
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #9cb6c9;
+  padding-bottom: 12px;
+  font-weight: 700;
+  text-transform: lowercase;
+  text-align: center;
+}
+
+.filter-group {
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  color: #364b60;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  text-transform: lowercase;
+}
+
+.filter-input,
+.filter-select {
+  padding: 12px 14px;
+  border: 1px solid #d7e3ee;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #2a3b4e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #7b9dc2;
+  box-shadow: 0 2px 6px rgba(64, 100, 140, 0.2);
+  transform: translateY(-1px);
+}
+
+.filter-input::placeholder {
+  color: #9ca9b6;
+}
+
+.reset-filters-btn {
+  width: 100%;
+  padding: 14px;
+  background: #0b2e52;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-transform: lowercase;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.reset-filters-btn:hover {
+  background: #0d3a66;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(11, 46, 82, 0.3);
+}
+
+.reset-filters-btn:active {
+  transform: translateY(0);
+}
+
+/* Content Area - Redesigned */
+.offers-content {
+  flex: 1;
+}
+
+.results-header {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, #f4f4f4, #f4f4f4);
+  padding: 20px 25px;
+  border-radius: 20px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.results-count {
+  color: #364b60;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.no-results {
+  background: linear-gradient(to bottom, #d2e6f8, #b9d6ef);
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: 24px;
+  color: #44576b;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* HORIZONTAL INTERNSHIPS GRID */
+.internships-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* HORIZONTAL Internship Card - Redesigned */
+.internship-card {
+  background: linear-gradient(to bottom, #d2e6f8, #b9d6ef);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  position: relative;
+  min-height: 220px;
+}
+
+.internship-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+}
+
+.card-image {
+  width: 280px;
+  min-width: 280px;
+  height: auto;
+  overflow: hidden;
+  background: linear-gradient(135deg, #7b9dc2 0%, #5a7ca8 100%);
+  position: relative;
+}
+
+.card-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(123, 157, 194, 0.8) 0%, rgba(90, 124, 168, 0.8) 100%);
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 25px;
+}
+
+.card-header {
+  margin-bottom: 15px;
+}
+
+.card-title {
+  color: #1d2c3b;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  text-transform: lowercase;
+}
+
+.card-hospital {
+  color: #0b2e52;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.card-speciality {
+  color: #364b60;
+  font-size: 0.95rem;
+  margin: 0 0 15px 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.card-date,
+.card-address,
+.card-duration,
+.card-salary {
+  color: #44576b;
+  font-size: 0.9rem;
+  margin: 4px 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-date::before {
+  content: "📅";
+}
+
+.card-address::before {
+  content: "📍";
+}
+
+.card-duration::before {
+  content: "⏱️";
+}
+
+.card-salary::before {
+  content: "💰";
+}
+
+.card-description {
+  color: #44576b;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+/* Card Actions - Redesigned */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  border-top: 1px solid rgba(156, 182, 201, 0.5);
+  padding-top: 15px;
+  margin-top: 15px;
+}
+
+.save-btn {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #9cb6c9;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  color: #44576b;
+}
+
+.save-btn:hover {
+  border-color: #0b2e52;
+  color: #0b2e52;
+  background: rgba(11, 46, 82, 0.1);
+  transform: translateY(-2px);
+}
+
+.save-btn.saved {
+  border-color: #0b2e52;
+  color: #0b2e52;
+  background: rgba(11, 46, 82, 0.15);
+}
+
+.apply-btn {
+  background: #0b2e52;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-transform: lowercase;
+  font-size: 0.9rem;
+}
+
+.apply-btn:hover {
+  background: #0d3a66;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(11, 46, 82, 0.3);
+}
+
+/* Logo positioning */
+.logo-bottom-left {
+  position: absolute;
+  bottom: 20px;
+  left: 40px;
+  z-index: 10;
+}
+
+.clinic-logo {
+  width: 300px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .internship-card {
+    flex-direction: column;
+    min-height: auto;
+  }
+  
+  .card-image {
+    width: 100%;
+    min-width: 100%;
+    height: 180px;
+  }
+  
+  .card-details {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .offers-container {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .filters-sidebar {
+    width: 100%;
+    position: static;
+  }
+
+  .offers-page h1 {
+    font-size: 2.5rem;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .logo-bottom-left {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    text-align: center;
+    margin: 20px auto;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .card-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-actions {
+    flex-direction: column;
+  }
+  
+  .apply-btn {
+    text-align: center;
+  }
+}

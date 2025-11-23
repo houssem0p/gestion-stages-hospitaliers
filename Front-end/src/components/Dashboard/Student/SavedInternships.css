@@ -1,0 +1,137 @@
+/* Saved Internships Page */
+
+.saved-internships-page {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.saved-internships-page h2 {
+  color: #0b2e52;
+  font-size: 2rem;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.saved-internships-page > p {
+  color: #666;
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.internships-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.internship-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.internship-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.internship-image {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.internship-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.internship-info {
+  padding: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.internship-info h3 {
+  color: #0b2e52;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.internship-info .hospital-name {
+  color: #667eea;
+  font-weight: 500;
+  margin: 0 0 6px 0;
+  font-size: 0.95rem;
+}
+
+.internship-info .speciality {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+  background-color: #f0f3f8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.internship-info .date {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+
+.internship-info .address {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 4px 0 10px 0;
+}
+
+.view-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.3s;
+  margin-top: auto;
+}
+
+.view-btn:hover {
+  background: #5568d3;
+}
+
+@media (max-width: 768px) {
+  .saved-internships-page {
+    padding: 15px;
+  }
+
+  .saved-internships-page h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .internships-list {
+    grid-template-columns: 1fr;
+  }
+}

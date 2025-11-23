@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs'); // Add this
 
 // Public routes
 router.post('/login', authController.login);
@@ -10,6 +11,87 @@ router.post('/login', authController.login);
 // Protected routes
 router.get('/profile', authMiddleware.verifyToken, authController.getProfile);
 router.put('/profile', authMiddleware.verifyToken, authController.updateProfile);
+
+// CREATE USER (super admin only)
+router.post('/create-user', authMiddleware.verifyToken, async (req, res) => {
+  try {
+    // Check if user is super_admin
+    if (req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Super admin only.'
+      });
+    }
+
+    const {
+      email,
+      password,
+      role,
+      first_name,
+      last_name,
+      specialty,
+      phone,
+      hospital_id
+    } = req.body;
+
+    console.log('Creating user with data:', req.body);
+
+    // Validate required fields
+    if (!email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, password, and role are required'
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email already exists'
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      role,
+      first_name: first_name || null,
+      last_name: last_name || null,
+      specialty: specialty || null,
+      phone: phone || null,
+      hospital_id: hospital_id || null,
+      is_active: true,
+      profile_completed: false,
+      created_by: req.user.userId, // Use the super admin's ID
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+
+    // Return user without password
+    const userResponse = { ...newUser.toJSON() };
+    delete userResponse.password;
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: userResponse
+    });
+
+  } catch (error) {
+    console.error('Create user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating user',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 
 // Get all users (super admin only)
 router.get('/users', authMiddleware.verifyToken, async (req, res) => {

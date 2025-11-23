@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
-import logo from "../../assets/39e82acc7d83121101fd8b44a3a843277ab9e11b.png"; 
+import { AuthContext } from "../context/AuthContext";
+import logo from "../assets/39e82acc7d83121101fd8b44a3a843277ab9e11b.png"; 
 import "./Login.css";
 
 const Login = () => {

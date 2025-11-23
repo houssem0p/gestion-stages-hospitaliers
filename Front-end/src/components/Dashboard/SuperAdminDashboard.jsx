@@ -22,15 +22,32 @@ const SuperAdminDashboard = () => {
   });
 
   const [newUser, setNewUser] = useState({
-    email: '',
-    password: '',
-    role: 'student',
-    first_name: '',
-    last_name: '',
-    specialty: '',
-    phone: '',
-    hospital_id: null
-  });
+  email: '',
+  password: '',
+  role: 'student',
+  first_name: '',
+  last_name: '',
+  specialty: '',
+  phone: '',
+  hospital_id: null,
+  // Role-specific fields
+  profile: {
+    // Student fields
+    student_number: '',
+    department: '',
+    academic_year: '',
+    // Doctor fields  
+    license_number: '',
+    years_of_experience: '',
+    medical_specialty: '',
+    // Teacher fields
+    subject_area: '',
+    academic_rank: '',
+    // Hospital Admin fields
+    hospital_department: '',
+    position: ''
+  }
+});
 
   useEffect(() => {
     fetchUsers();
@@ -40,7 +57,7 @@ const SuperAdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await authAPI.get('/auth/users');
+    const response = await authAPI.get('/admin/users');
       if (response.data.success) {
         setUsers(response.data.users);
       }
@@ -54,7 +71,7 @@ const SuperAdminDashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await authAPI.get('/auth/stats');
+      const response = await authAPI.get('/admin/stats');
       if (response.data.success) {
         setStats(response.data.stats);
       }
@@ -73,29 +90,54 @@ const SuperAdminDashboard = () => {
   };
 
   const handleCreateUser = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await authAPI.post('/auth/create-user', newUser);
-      if (response.data.success) {
-        alert('User created successfully!');
-        setShowCreateForm(false);
-        setNewUser({
-          email: '',
-          password: '',
-          role: 'student',
-          first_name: '',
-          last_name: '',
-          specialty: '',
-          phone: '',
-          hospital_id: null
-        });
-        fetchUsers();
-        fetchDashboardStats();
-      }
-    } catch (error) {
-      alert(error.response?.data?.message || 'Error creating user');
+  e.preventDefault();
+  try {
+    console.log('Sending user data:', newUser);
+    
+    // Prepare data with profile information
+    const userData = {
+      ...newUser,
+      extra: newUser.profile // Send profile data as 'extra' field
+    };
+    
+    const response = await authAPI.post('/admin/users', userData);
+    
+    if (response.data.success) {
+      alert('User created successfully!');
+      setShowCreateForm(false);
+      // Reset form with profile fields
+      setNewUser({
+        email: '',
+        password: '',
+        role: 'student',
+        first_name: '',
+        last_name: '',
+        specialty: '',
+        phone: '',
+        hospital_id: null,
+        profile: {
+          student_number: '',
+          department: '',
+          academic_year: '',
+          license_number: '',
+          years_of_experience: '',
+          medical_specialty: '',
+          subject_area: '',
+          academic_rank: '',
+          hospital_department: '',
+          position: ''
+        }
+      });
+      fetchUsers(); // Refresh the list
     }
-  };
+  } catch (error) {
+    console.error('Create user error:', error);
+    const errorMessage = error.response?.data?.message || 
+                        error.response?.data?.error || 
+                        'Error creating user';
+    alert(`Error: ${errorMessage}`);
+  }
+};
 
   const handleEditUser = (user) => {
     setSelectedUser({...user});
@@ -230,7 +272,7 @@ const SuperAdminDashboard = () => {
           <div className="stat-info">
             <h3>Roles Distribution</h3>
             <div className="role-stats">
-              {Object.entries(stats.usersByRole).map(([role, count]) => (
+              {stats.usersByRole && Object.entries(stats.usersByRole).map(([role, count]) => (
                 <span key={role} className="role-stat">
                   {role}: <strong>{count}</strong>
                 </span>
@@ -300,120 +342,307 @@ const SuperAdminDashboard = () => {
       </nav>
 
       <main className="dashboard-main">
-        {/* Create User Modal */}
-        {showCreateForm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h3>Create New User</h3>
-                <button 
-                  onClick={() => setShowCreateForm(false)}
-                  className="close-btn"
-                >
-                  ×
-                </button>
-              </div>
-              <form onSubmit={handleCreateUser}>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Email *</label>
-                    <input
-                      type="email"
-                      placeholder="user@example.com"
-                      value={newUser.email}
-                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Password *</label>
-                    <input
-                      type="password"
-                      placeholder="Enter password"
-                      value={newUser.password}
-                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>First Name</label>
-                    <input
-                      type="text"
-                      placeholder="First name"
-                      value={newUser.first_name}
-                      onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Last Name</label>
-                    <input
-                      type="text"
-                      placeholder="Last name"
-                      value={newUser.last_name}
-                      onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Role *</label>
-                    <select
-                      value={newUser.role}
-                      onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                      required
-                    >
-                      <option value="student">Student</option>
-                      <option value="doctor">Doctor</option>
-                      <option value="teacher">Teacher</option>
-                      <option value="hospital_admin">Hospital Admin</option>
-                      <option value="super_admin">Super Admin</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Phone</label>
-                    <input
-                      type="text"
-                      placeholder="Phone number"
-                      value={newUser.phone}
-                      onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group full-width">
-                  <label>Specialty (for doctors/teachers)</label>
+              {/* Create User Modal */}
+{showCreateForm && (
+  <div className="modal-overlay">
+    <div className="modal">
+      <div className="modal-header">
+        <h3>Create New User</h3>
+        <button 
+          onClick={() => setShowCreateForm(false)}
+          className="close-btn"
+        >
+          ×
+        </button>
+      </div>
+      <form onSubmit={handleCreateUser}>
+        <div className="form-grid">
+          <div className="form-group">
+            <label>Email *</label>
+            <input
+              type="email"
+              placeholder="user@example.com"
+              value={newUser.email}
+              onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Password *</label>
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={newUser.password}
+              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>First Name</label>
+            <input
+              type="text"
+              placeholder="First name"
+              value={newUser.first_name}
+              onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
+            />
+          </div>
+          <div className="form-group">
+            <label>Last Name</label>
+            <input
+              type="text"
+              placeholder="Last name"
+              value={newUser.last_name}
+              onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
+            />
+          </div>
+          <div className="form-group">
+            <label>Role *</label>
+            <select
+              value={newUser.role}
+              onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+              required
+            >
+              <option value="student">Student</option>
+              <option value="doctor">Doctor</option>
+              <option value="teacher">Teacher</option>
+              <option value="hospital_admin">Hospital Admin</option>
+              <option value="super_admin">Super Admin</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Phone</label>
+            <input
+              type="text"
+              placeholder="Phone number"
+              value={newUser.phone}
+              onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+            />
+          </div>
+        </div>
+        
+        {/* Common fields */}
+        <div className="form-group full-width">
+          <label>Specialty (for doctors/teachers)</label>
+          <input
+            type="text"
+            placeholder="Medical specialty or teaching field"
+            value={newUser.specialty}
+            onChange={(e) => setNewUser({...newUser, specialty: e.target.value})}
+          />
+        </div>
+
+        <div className="form-group full-width">
+          <label>Hospital ID (optional)</label>
+          <input
+            type="number"
+            placeholder="Hospital ID number"
+            value={newUser.hospital_id || ''}
+            onChange={(e) => setNewUser({...newUser, hospital_id: e.target.value ? parseInt(e.target.value) : null})}
+          />
+        </div>
+
+        {/* Role-specific fields */}
+        <div className="role-specific-fields">
+          {/* Student Fields */}
+          {newUser.role === 'student' && (
+            <div className="fields-section">
+              <h4>Student Information</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Student Number *</label>
                   <input
                     type="text"
-                    placeholder="Medical specialty or teaching field"
-                    value={newUser.specialty}
-                    onChange={(e) => setNewUser({...newUser, specialty: e.target.value})}
+                    placeholder="e.g., S12345"
+                    value={newUser.profile.student_number}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, student_number: e.target.value}
+                    })}
+                    required
                   />
                 </div>
+                <div className="form-group">
+                  <label>Department *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Computer Science"
+                    value={newUser.profile.department}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, department: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Academic Year</label>
+                  <select
+                    value={newUser.profile.academic_year}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, academic_year: e.target.value}
+                    })}
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                    <option value="5th Year">5th Year</option>
+                    <option value="Graduate">Graduate</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
-                <div className="form-group full-width">
-                  <label>Hospital ID (optional)</label>
+          {/* Doctor Fields */}
+          {newUser.role === 'doctor' && (
+            <div className="fields-section">
+              <h4>Doctor Information</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Medical Specialty *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Cardiology, Neurology"
+                    value={newUser.profile.medical_specialty}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, medical_specialty: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>License Number *</label>
+                  <input
+                    type="text"
+                    placeholder="Medical license number"
+                    value={newUser.profile.license_number}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, license_number: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Years of Experience</label>
                   <input
                     type="number"
-                    placeholder="Hospital ID number"
-                    value={newUser.hospital_id || ''}
-                    onChange={(e) => setNewUser({...newUser, hospital_id: e.target.value ? parseInt(e.target.value) : null})}
+                    placeholder="e.g., 5"
+                    value={newUser.profile.years_of_experience}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, years_of_experience: e.target.value}
+                    })}
                   />
                 </div>
-
-                <div className="form-actions">
-                  <button type="submit" className="btn-primary">
-                    Create User
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowCreateForm(false)}
-                    className="btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Teacher Fields */}
+          {newUser.role === 'teacher' && (
+            <div className="fields-section">
+              <h4>Teacher Information</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Subject Area *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Mathematics, Biology"
+                    value={newUser.profile.subject_area}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, subject_area: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Academic Rank</label>
+                  <select
+                    value={newUser.profile.academic_rank}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, academic_rank: e.target.value}
+                    })}
+                  >
+                    <option value="">Select Rank</option>
+                    <option value="Professor">Professor</option>
+                    <option value="Associate Professor">Associate Professor</option>
+                    <option value="Assistant Professor">Assistant Professor</option>
+                    <option value="Lecturer">Lecturer</option>
+                    <option value="Instructor">Instructor</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Hospital Admin Fields */}
+          {newUser.role === 'hospital_admin' && (
+            <div className="fields-section">
+              <h4>Hospital Admin Information</h4>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Department *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Administration, HR, Finance"
+                    value={newUser.profile.hospital_department}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, hospital_department: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Position *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Manager, Director, Coordinator"
+                    value={newUser.profile.position}
+                    onChange={(e) => setNewUser({
+                      ...newUser, 
+                      profile: {...newUser.profile, position: e.target.value}
+                    })}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Super Admin Fields */}
+          {newUser.role === 'super_admin' && (
+            <div className="fields-section">
+              <h4>Super Administrator</h4>
+              <p className="info-text">Full system access with all privileges.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="form-actions">
+          <button type="submit" className="btn-primary">
+            Create User
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setShowCreateForm(false)}
+            className="btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
         {/* Edit User Modal */}
         {showEditForm && selectedUser && (

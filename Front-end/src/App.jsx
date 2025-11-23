@@ -1,67 +1,44 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import Login from './components/Login/Login';
-import SuperAdminDashboard from './components/Dashboard/SuperAdminDashboard';
-import DoctorDashboard from './components/Dashboard/DoctorDashboard';
-import StudentDashboard from './components/Dashboard/StudentDashboard';
-import HospitalDashboard from './components/Dashboard/HospitalDashboard';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import DashboardPage from './pages/DashboardPage';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+
+// Dashboard routes
+import StudentProfile from './components/Dashboard/Student/Profile';
+import StudentOffers from './components/Dashboard/Student/Offers';
+import StudentApplications from './components/Dashboard/Student/Applications';
+import StudentMyStages from './components/Dashboard/Student/MyStages';
+import StudentEvaluations from './components/Dashboard/Student/Evaluations';
+import StudentMessages from './components/Dashboard/Student/Messages';
+import StudentSavedInternships from './components/Dashboard/Student/SavedInternships';
+import StudentInternshipDetail from './components/Dashboard/Student/InternshipDetail';
+
+import DoctorMyTrainees from './components/Dashboard/Doctor/MyTrainees';
+import DoctorEvaluations from './components/Dashboard/Doctor/Evaluations';
+import DoctorMessages from './components/Dashboard/Doctor/Messages';
+
+import HospitalManageOffers from './components/Dashboard/Hospital/ManageOffers';
+import HospitalReceivedApplications from './components/Dashboard/Hospital/ReceivedApplications';
+import HospitalServices from './components/Dashboard/Hospital/Services';
+import HospitalMentors from './components/Dashboard/Hospital/Mentors';
+import HospitalReports from './components/Dashboard/Hospital/Reports';
+import HospitalMessages from './components/Dashboard/Hospital/Messages';
+
+import TeacherMyStudents from './components/Dashboard/Teacher/MyStudents';
+import TeacherAttestations from './components/Dashboard/Teacher/Attestations';
+import TeacherAvailability from './components/Dashboard/Teacher/Availability';
+import TeacherEvaluations from './components/Dashboard/Teacher/Evaluations';
+import TeacherMessages from './components/Dashboard/Teacher/Messages';
+
+import AdminUsers from './components/Dashboard/Admin/Users';
+import AdminStats from './components/Dashboard/Admin/Stats';
+
+import EvaluationsWrapper from './components/Dashboard/Shared/EvaluationsWrapper';
+import MessagesWrapper from './components/Dashboard/Shared/MessagesWrapper';
 import './App.css';
-
-// Placeholder for TeacherDashboard (since it's missing)
-const TeacherDashboard = () => <div style={{ padding: '20px' }}><h1>Teacher Dashboard</h1><p>Teacher dashboard content goes here</p></div>;
-
-// Protected Route component
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px'
-      }}>
-        Checking authentication...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
-};
-
-// Dashboard router
-const DashboardRouter = () => {
-  const { user } = useAuth();
-
-  console.log('Current user:', user); // Debug log
-
-  switch (user?.role) {
-    case 'super_admin':
-      return <SuperAdminDashboard />;
-    case 'hospital_admin':
-      return <HospitalDashboard />;
-    case 'doctor':
-      return <DoctorDashboard />;
-    case 'teacher':
-      return <TeacherDashboard />;
-    case 'student':
-      return <StudentDashboard />;
-    default:
-      return (
-        <div style={{ padding: '20px' }}>
-          <h2>Access Denied</h2>
-          <p>No dashboard available for your role: {user?.role}</p>
-        </div>
-      );
-  }
-};
 
 function App() {
   return (
@@ -69,16 +46,221 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
-            <Route 
-              path="/dashboard" 
+
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <DashboardRouter />
+                  <DashboardPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route path="/" element={<Navigate to="/login" />} />
+
+            {/* Student-specific routes (protected) */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <StudentProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/internships"
+              element={
+                <ProtectedRoute>
+                  <StudentOffers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/applications"
+              element={
+                <ProtectedRoute>
+                  <StudentApplications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-stages"
+              element={
+                <ProtectedRoute>
+                  <StudentMyStages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/evaluations"
+              element={
+                <ProtectedRoute>
+                  <StudentEvaluations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <StudentMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/saved-internships"
+              element={
+                <ProtectedRoute>
+                  <StudentSavedInternships />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/internships/:id"
+              element={
+                <ProtectedRoute>
+                  <StudentInternshipDetail />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Doctor-specific routes (protected) */}
+            <Route
+              path="/my-trainees"
+              element={
+                <ProtectedRoute>
+                  <DoctorMyTrainees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/doctor/evaluations"
+              element={
+                <ProtectedRoute>
+                  <DoctorEvaluations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/doctor/messages"
+              element={
+                <ProtectedRoute>
+                  <DoctorMessages />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Hospital-specific routes (protected) */}
+            <Route
+              path="/manage-offers"
+              element={
+                <ProtectedRoute>
+                  <HospitalManageOffers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/received-applications"
+              element={
+                <ProtectedRoute>
+                  <HospitalReceivedApplications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/services"
+              element={
+                <ProtectedRoute>
+                  <HospitalServices />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mentors"
+              element={
+                <ProtectedRoute>
+                  <HospitalMentors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/reports"
+              element={
+                <ProtectedRoute>
+                  <HospitalReports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hospital/messages"
+              element={
+                <ProtectedRoute>
+                  <HospitalMessages />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Teacher-specific routes (protected) */}
+            <Route
+              path="/my-students"
+              element={
+                <ProtectedRoute>
+                  <TeacherMyStudents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/evaluations"
+              element={
+                <ProtectedRoute>
+                  <TeacherEvaluations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/attestations"
+              element={
+                <ProtectedRoute>
+                  <TeacherAttestations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/messages"
+              element={
+                <ProtectedRoute>
+                  <TeacherMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/availability"
+              element={
+                <ProtectedRoute>
+                  <TeacherAvailability />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin-specific routes (protected) */}
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stats"
+              element={
+                <ProtectedRoute>
+                  <AdminStats />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
       </Router>
