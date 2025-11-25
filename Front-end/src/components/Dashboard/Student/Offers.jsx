@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import './Offers.css';
+import authAPI from '../../../services/api';
 
 const Offers = () => {
   const [allInternships, setAllInternships] = useState([]);
@@ -15,77 +16,35 @@ const Offers = () => {
   });
   const [savedInternships, setSavedInternships] = useState([]);
 
-  // Mock data - replace with API call
-  const mockInternships = [
-    {
-      id: 1,
-      title: 'Cardiology Internship',
-      hospital: 'General Hospital',
-      hospitalImage: '/assets/hospital1.jpg',
-      speciality: 'Cardiology',
-      startDate: '2024-01-15',
-      address: 'Cairo, Egypt',
-      description: 'Learn about cardiac care and patient management.'
-    },
-    {
-      id: 2,
-      title: 'Neurology Internship',
-      hospital: 'Saint Johns Hospital',
-      hospitalImage: '/assets/hospital2.jpg',
-      speciality: 'Neurology',
-      startDate: '2024-02-01',
-      address: 'Alexandria, Egypt',
-      description: 'Explore neurological disorders and treatments.'
-    },
-    {
-      id: 3,
-      title: 'Pediatrics Internship',
-      hospital: 'Children\'s Medical Center',
-      hospitalImage: '/assets/hospital3.jpg',
-      speciality: 'Pediatrics',
-      startDate: '2024-01-20',
-      address: 'Giza, Egypt',
-      description: 'Work with pediatric patients and develop clinical skills.'
-    },
-    {
-      id: 4,
-      title: 'Surgery Internship',
-      hospital: 'Trauma Center',
-      hospitalImage: '/assets/hospital4.jpg',
-      speciality: 'Surgery',
-      startDate: '2024-03-01',
-      address: 'Cairo, Egypt',
-      description: 'Gain surgical experience in emergency and elective cases.'
-    },
-    {
-      id: 5,
-      title: 'Oncology Internship',
-      hospital: 'Cancer Research Institute',
-      hospitalImage: '/assets/hospital5.jpg',
-      speciality: 'Oncology',
-      startDate: '2024-02-15',
-      address: 'Helwan, Egypt',
-      description: 'Learn about cancer treatment and patient care.'
-    },
-    {
-      id: 6,
-      title: 'Emergency Medicine',
-      hospital: 'General Hospital',
-      hospitalImage: '/assets/hospital1.jpg',
-      speciality: 'Emergency Medicine',
-      startDate: '2024-01-25',
-      address: 'Cairo, Egypt',
-      description: 'Handle emergency cases and acute patient situations.'
-    }
-  ];
-
   useEffect(() => {
-    // TODO: Replace with API call to fetch internships from backend
-    setTimeout(() => {
-      setAllInternships(mockInternships);
-      setFilteredInternships(mockInternships);
-      setLoading(false);
-    }, 500);
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await authAPI.get('/internships');
+        const data = res.data.data || [];
+
+        // Map backend fields to UI expected fields
+        const mapped = data.map(i => ({
+          id: i.id,
+          title: i.title,
+          hospital: i.hospital || 'Unknown Hospital',
+          hospitalImage: '/assets/hospital1.jpg',
+          speciality: i.specialty || i.speciality || '',
+          startDate: i.start_date || i.created_at?.split('T')[0] || '',
+          address: i.address || '',
+          description: i.description || '',
+          status: i.status || 'active'
+        }));
+
+        setAllInternships(mapped);
+        setFilteredInternships(mapped);
+      } catch (err) {
+        console.error('Failed to fetch internships', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
   useEffect(() => {

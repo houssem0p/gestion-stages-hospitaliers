@@ -1,0 +1,299 @@
+/* DoctorEvaluations.css */
+.doctor-evaluations-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.doctor-evaluations-page h2 {
+  color: #1e293b;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+.doctor-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Left Pane - Internships List */
+.doctor-left-pane {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.doctor-left-pane h3 {
+  color: #374151;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.doctor-internship-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doctor-internship-item {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.doctor-internship-item:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+.doctor-internship-item.active {
+  border-color: #3b82f6;
+  background: #e0f2fe;
+  border-left: 4px solid #3b82f6;
+}
+
+.doctor-internship-item strong {
+  color: #1e293b;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.doctor-internship-item .meta {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Right Pane - Applicants */
+.doctor-right-pane {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  min-height: 400px;
+}
+
+.doctor-right-pane h3 {
+  color: #374151;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.doctor-applicants-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doctor-applicant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.doctor-applicant-item:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.doctor-applicant-item strong {
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.doctor-applicant-item .small {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.doctor-actions button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.doctor-actions button:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Evaluation Form */
+.doctor-evaluation-form {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.doctor-evaluation-form h4 {
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.doctor-form-row {
+  margin-bottom: 1.5rem;
+}
+
+.doctor-form-row label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.doctor-form-row textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s ease;
+}
+
+.doctor-form-row textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.doctor-form-row input {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.doctor-form-row input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.doctor-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.doctor-form-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.doctor-form-actions button:first-child {
+  background: #10b981;
+  color: white;
+}
+
+.doctor-form-actions button:first-child:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.doctor-form-actions button:last-child {
+  background: #6b7280;
+  color: white;
+}
+
+.doctor-form-actions button:last-child:hover {
+  background: #4b5563;
+}
+
+/* Loading and Empty States */
+.doctor-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.doctor-right-pane > div:first-child:not(h3) {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.doctor-applicants-list li:last-child:not(.doctor-applicant-item) {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+  background: #f8fafc;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+.doctor-internship-list li:last-child:not(.doctor-internship-item) {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+  background: #f8fafc;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .doctor-evaluations-page {
+    padding: 1rem;
+  }
+
+  .doctor-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .doctor-left-pane, .doctor-right-pane {
+    padding: 1rem;
+  }
+
+  .doctor-applicant-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .doctor-form-actions {
+    flex-direction: column;
+  }
+
+  .doctor-form-actions button {
+    width: 100%;
+  }
+}

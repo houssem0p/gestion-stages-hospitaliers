@@ -18,7 +18,7 @@ const DashboardPage = () => {
         return <StudentDashboard />;
       case 'doctor':
         return <DoctorDashboard />;
-      case 'hospital':
+      case 'hospital_admin':
         return <HospitalDashboard />;
       case 'teacher':
         return <TeacherDashboard />;

@@ -46,6 +46,104 @@ const initDatabase = async () => {
     `);
     console.log('✅ Users table created/verified');
 
+    // Create offers table if it doesn't exist (basic structure compatible with existing queries)
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS offers (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        title VARCHAR(255),
+        description TEXT,
+        speciality VARCHAR(191),
+        doctor_id INT,
+        requirements TEXT,
+        startDate DATE,
+        endDate DATE,
+        address VARCHAR(255),
+        hospital VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Offers table created/verified');
+
+    // Create evaluations table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS evaluations (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        internship_id INT NOT NULL,
+        student_id INT NOT NULL,
+        doctor_id INT,
+        scores JSON,
+        comments TEXT,
+        final_grade VARCHAR(50),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uniq_intern_student (internship_id, student_id)
+      )
+    `);
+    console.log('✅ Evaluations table created/verified');
+
+    // Create reports table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS reports (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        internship_id INT NOT NULL,
+        student_id INT NOT NULL,
+        title VARCHAR(255),
+        content TEXT,
+        file_url VARCHAR(1024),
+        status ENUM('draft','submitted','reviewed') DEFAULT 'draft',
+        feedback TEXT,
+        submission_date TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Reports table created/verified');
+
+    // Create attestations metadata table (stores generated attestation records)
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS attestations (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        internship_id INT NOT NULL,
+        student_id INT NOT NULL,
+        generated_by INT,
+        file_url VARCHAR(1024),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Attestations table created/verified');
+
+    // Create applications table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS applications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        internship_id INT NOT NULL,
+        student_id INT NOT NULL,
+        cover_letter TEXT,
+        status ENUM('pending','approved','rejected') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Applications table created/verified');
+
+    // Create student_documents table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS student_documents (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        student_id INT NOT NULL,
+        document_type ENUM('cv','transcripts','school_certificate','other') NOT NULL,
+        file_path VARCHAR(1024) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        file_size INT,
+        mime_type VARCHAR(100),
+        is_verified BOOLEAN DEFAULT FALSE,
+        uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        verified_at TIMESTAMP NULL
+      )
+    `);
+    console.log('✅ Student documents table created/verified');
+
     console.log('🎉 Database initialization completed!');
 
   } catch (error) {

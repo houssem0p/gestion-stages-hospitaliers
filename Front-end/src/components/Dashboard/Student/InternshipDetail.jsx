@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import './InternshipDetail.css';
+import authAPI from '../../../services/api';
 
 const InternshipDetail = () => {
   const { id } = useParams();
@@ -11,27 +12,45 @@ const InternshipDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch internship details from backend using id
-    // For now, mock data
-    const mockData = {
-      id: id,
-      title: 'Internship in Cardiology',
-      hospital: 'General Hospital',
-      hospitalImage: '/assets/hospital1.jpg',
-      speciality: 'Cardiology',
-      startDate: '2024-01-15',
-      endDate: '2024-03-15',
-      address: '123 Medical Street, Cairo, Egypt',
-      description: 'This is a comprehensive internship program in cardiology. You will learn about cardiac care, patient management, diagnostic procedures, and medical treatment strategies.',
-      requirements: 'Bachelor\'s degree in Medicine or related field',
-      responsibilities: 'Patient care, diagnostics, documentation, team collaboration',
-      hospitalDescription: 'General Hospital is one of the leading medical institutions in Egypt, providing world-class healthcare services.',
-      hospitalContact: '+20-100-123-4567'
+    let mounted = true;
+    const fetchInternship = async () => {
+      setLoading(true);
+      try {
+        const res = await authAPI.get(`/internships/${id}`);
+        const data = res.data?.data || null;
+        if (!data) {
+          if (mounted) setInternship(null);
+          return;
+        }
+
+        // Map backend fields to component fields and provide sensible defaults
+        const mapped = {
+          id: data.id,
+          title: data.title || 'Untitled',
+          hospital: data.hospital || 'Unknown Hospital',
+          hospitalImage: data.hospitalImage || '/assets/hospitals/default.jpg',
+          speciality: data.speciality || data.speciality || '',
+          startDate: data.startDate || data.start_date || '',
+          endDate: data.endDate || data.end_date || '',
+          address: data.address || '',
+          description: data.description || '',
+          requirements: data.requirements || '',
+          responsibilities: data.responsibilities || '',
+          hospitalDescription: data.hospitalDescription || '',
+          hospitalContact: data.hospitalContact || ''
+        };
+
+        if (mounted) setInternship(mapped);
+      } catch (err) {
+        console.error('Failed to fetch internship details', err);
+        if (mounted) setInternship(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    setTimeout(() => {
-      setInternship(mockData);
-      setLoading(false);
-    }, 500);
+
+    fetchInternship();
+    return () => { mounted = false; };
   }, [id]);
 
   const handleSave = () => {
@@ -40,8 +59,31 @@ const InternshipDetail = () => {
   };
 
   const handleApply = () => {
-    // TODO: Call backend to apply for internship
-    alert('Application submitted! (Mock)');
+    // Check student documents and call backend apply endpoint
+    const doApply = async () => {
+      try {
+        // fetch uploaded documents
+        const res = await authAPI.get('/students/documents');
+        const docs = res.data.data || [];
+        const types = docs.map(d => d.document_type);
+        const required = ['cv', 'transcripts'];
+        const missing = required.filter(r => !types.includes(r));
+        if (missing.length > 0) {
+          const ok = window.confirm(`You must upload the following documents before applying: ${missing.join(', ')}. Go to your profile to upload them?`);
+          if (ok) navigate('/profile');
+          return;
+        }
+
+        // submit application
+        await authAPI.post(`/internships/${id}/apply`, { cover_letter: '' });
+        alert('Application submitted successfully.');
+      } catch (err) {
+        console.error('Apply failed', err);
+        alert(err.response?.data?.message || 'Failed to apply');
+      }
+    };
+
+    doApply();
   };
 
   const goToHospital = () => {
