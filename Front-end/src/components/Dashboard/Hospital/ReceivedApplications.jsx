@@ -10,6 +10,9 @@ const ReceivedApplications = () => {
   const [loading, setLoading] = useState(false);
   const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [studentDocuments, setStudentDocuments] = useState({});
+  const [documentsLoading, setDocumentsLoading] = useState({});
+  const [showDocumentsFor, setShowDocumentsFor] = useState(null);
 
   const hospitalId = user?.hospital_id;
 
@@ -71,6 +74,35 @@ const ReceivedApplications = () => {
       alert('Impossible de charger le profil étudiant');
     } finally {
       setProfileLoading(false);
+    }
+  };
+
+  const loadStudentDocuments = async (studentId) => {
+    // Always set showDocumentsFor to toggle/show the documents section
+    const studentIdStr = String(studentId);
+    if (showDocumentsFor === studentIdStr) {
+      // If already showing, hide it
+      setShowDocumentsFor(null);
+      return;
+    }
+    
+    setShowDocumentsFor(studentIdStr);
+    
+    // If documents are already loaded, just show them
+    if (studentDocuments[studentId]) {
+      return;
+    }
+    
+    try {
+      setDocumentsLoading(prev => ({ ...prev, [studentId]: true }));
+      const res = await authAPI.get(`/students/${studentId}/documents`);
+      setStudentDocuments(prev => ({ ...prev, [studentId]: res.data.data || [] }));
+    } catch (err) {
+      console.error('Failed to load student documents', err);
+      alert('Erreur lors du chargement des documents: ' + (err.response?.data?.message || err.message));
+      setStudentDocuments(prev => ({ ...prev, [studentId]: [] }));
+    } finally {
+      setDocumentsLoading(prev => ({ ...prev, [studentId]: false }));
     }
   };
 
@@ -164,9 +196,13 @@ const ReceivedApplications = () => {
                       <div style={{ color: '#666', fontSize: '14px', marginTop: 4 }}>
                         {app.email} • {app.phone || 'Téléphone non fourni'}
                       </div>
-                      {app.matricule && (
+                      {(app.matricule || app.speciality || app.academic_year) && (
                         <div style={{ color: '#666', fontSize: '14px' }}>
-                          Matricule: {app.matricule} • {app.speciality} - {app.year}
+                          {app.matricule && `Matricule: ${app.matricule}`}
+                          {app.matricule && (app.speciality || app.academic_year) && ' • '}
+                          {app.speciality && app.speciality}
+                          {app.speciality && app.academic_year && ' - '}
+                          {app.academic_year && `Année: ${app.academic_year}`}
                         </div>
                       )}
                     </div>
@@ -197,7 +233,10 @@ const ReceivedApplications = () => {
 
                   <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     <button
-                      onClick={() => viewStudentProfile(app.student_id)}
+                      onClick={() => {
+                        viewStudentProfile(app.student_id);
+                        loadStudentDocuments(app.student_id);
+                      }}
                       style={{
                         padding: '6px 12px',
                         borderRadius: 4,
@@ -209,6 +248,20 @@ const ReceivedApplications = () => {
                       }}
                     >
                       👁 Voir profil
+                    </button>
+                    <button
+                      onClick={() => loadStudentDocuments(app.student_id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 4,
+                        border: '1px solid #4caf50',
+                        background: showDocumentsFor === String(app.student_id) ? '#4caf50' : 'white',
+                        color: showDocumentsFor === String(app.student_id) ? 'white' : '#4caf50',
+                        cursor: 'pointer',
+                        fontSize: 12
+                      }}
+                    >
+                      {showDocumentsFor === String(app.student_id) ? '📄 Masquer Documents' : '📄 Voir Documents'}
                     </button>
 
                     {app.status === 'pending' && (
@@ -242,6 +295,114 @@ const ReceivedApplications = () => {
                       </>
                     )}
                   </div>
+
+                  {/* Documents section for this application */}
+                  {showDocumentsFor === String(app.student_id) && (
+                    <div
+                      style={{
+                        marginTop: 12,
+                        padding: 16,
+                        borderRadius: 8,
+                        border: '1px solid #e0e0e0',
+                        background: '#f9f9f9'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <h5 style={{ margin: 0 }}>Documents de {app.first_name} {app.last_name}</h5>
+                        <button
+                          onClick={() => setShowDocumentsFor(null)}
+                          style={{
+                            padding: '4px 8px',
+                            background: '#f44336',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            fontSize: '11px'
+                          }}
+                        >
+                          ✕ Fermer
+                        </button>
+                      </div>
+                      {documentsLoading[app.student_id] ? (
+                        <div style={{ color: '#666' }}>Chargement des documents...</div>
+                      ) : (studentDocuments[app.student_id] || []).length === 0 ? (
+                        <div style={{ color: '#666' }}>Aucun document disponible</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {(studentDocuments[app.student_id] || []).map(doc => (
+                            <div
+                              key={doc.id}
+                              style={{
+                                padding: 12,
+                                background: 'white',
+                                borderRadius: 4,
+                                border: '1px solid #ddd',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <div>
+                                <div style={{ fontWeight: 'bold' }}>
+                                  {doc.document_type?.toUpperCase() || 'Document'}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#666' }}>
+                                  {doc.original_name}
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#999', marginTop: 4 }}>
+                                  Téléversé le: {new Date(doc.uploaded_at).toLocaleString('fr-FR')}
+                                  {doc.is_verified && (
+                                    <span style={{ color: '#4caf50', marginLeft: 8 }}>
+                                      ✓ Vérifié
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {doc.file_path && (() => {
+                                // Construct the file URL
+                                const baseURL = authAPI.defaults.baseURL.replace('/api', '');
+                                const filePath = doc.file_path.startsWith('/') ? doc.file_path : '/' + doc.file_path;
+                                const fileUrl = `${baseURL}${filePath}`;
+                                
+                                // Check if path is invalid (absolute Windows path)
+                                if (doc.file_path.includes(':\\') || doc.file_path.match(/^[A-Z]:/i)) {
+                                  return (
+                                    <span style={{ color: '#f44336', fontSize: '12px' }}>
+                                      Chemin invalide
+                                    </span>
+                                  );
+                                }
+                                
+                                return (
+                                  <a
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => {
+                                      console.log('Opening document:', fileUrl);
+                                      // Let the browser handle it normally
+                                    }}
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: '#1976d2',
+                                      color: 'white',
+                                      textDecoration: 'none',
+                                      borderRadius: 4,
+                                      fontSize: '12px',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    Voir
+                                  </a>
+                                );
+                              })()}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -274,7 +435,7 @@ const ReceivedApplications = () => {
                     <strong>Spécialité:</strong> {selectedStudentProfile.speciality || '—'}
                   </p>
                   <p>
-                    <strong>Année:</strong> {selectedStudentProfile.year || '—'}
+                    <strong>Année:</strong> {selectedStudentProfile.academic_year || selectedStudentProfile.year || '—'}
                   </p>
                   <p>
                     <strong>Matricule:</strong> {selectedStudentProfile.matricule || '—'}

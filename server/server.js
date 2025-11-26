@@ -14,6 +14,8 @@ const reportRoutes = require('./routes/reportRoutes');
 const evaluationTemplateRoutes = require('./routes/evaluationTemplateRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,7 +34,7 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files (student documents, etc.)
+// Serve uploaded files (student documents, message attachments, etc.)
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -53,6 +55,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/evaluation-templates', evaluationTemplateRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/doctors', doctorRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/teachers', teacherRoutes);
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ 

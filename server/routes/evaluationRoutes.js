@@ -1,6 +1,7 @@
 // routes/evaluations.js
 const express = require('express');
 const router = express.Router();
+const { verifyToken } = require('../middleware/authMiddleware');
 const evaluationsController = require('../controllers/evaluationsController');
 
 // Get evaluations for a student
@@ -8,6 +9,9 @@ router.get('/student/:studentId', evaluationsController.getEvaluationsByStudent)
 
 // Get evaluation for internship
 router.get('/internship/:internshipId', evaluationsController.getEvaluation);
+
+// Get internships with evaluations and reports for teacher
+router.get('/teacher/internships', verifyToken, evaluationsController.getTeacherInternships);
 
 // Get evaluation template
 router.get('/template/:internshipId', evaluationsController.getEvaluationTemplate);

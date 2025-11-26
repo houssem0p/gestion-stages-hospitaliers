@@ -283,6 +283,66 @@ const updateInternship = async (req, res) => {
       });
     }
 
+    // If doctor_id is being updated, update internship_participants
+    if (updates.doctor_id !== undefined) {
+      // Get hospital_id and student_id from existing participants or offers
+      const [internshipData] = await sequelize.query(
+        `SELECT o.id, o.hospital, 
+         (SELECT student_id FROM internship_participants WHERE internship_id = o.id AND role = 'student' LIMIT 1) as student_id,
+         (SELECT hospital_id FROM internship_participants WHERE internship_id = o.id LIMIT 1) as hospital_id
+         FROM offers o WHERE o.id = ?`,
+        { replacements: [id], type: QueryTypes.SELECT }
+      );
+
+      if (internshipData) {
+        // Get hospital_id
+        let hospitalId = internshipData.hospital_id;
+        if (!hospitalId && internshipData.hospital) {
+          const [hospital] = await sequelize.query(
+            `SELECT id FROM hospitals WHERE name = ? LIMIT 1`,
+            { replacements: [internshipData.hospital], type: QueryTypes.SELECT }
+          );
+          hospitalId = hospital?.id || null;
+        }
+
+        if (updates.doctor_id) {
+          // Assign doctor - create/update doctor participant entry
+          await sequelize.query(
+            `INSERT INTO internship_participants (internship_id, student_id, doctor_id, hospital_id, role, status, assigned_at)
+             VALUES (?, ?, ?, ?, 'doctor', 'active', NOW())
+             ON DUPLICATE KEY UPDATE doctor_id = ?, status = 'active'`,
+            { replacements: [id, internshipData.student_id || null, updates.doctor_id, hospitalId, updates.doctor_id] }
+          );
+
+          // Also update student participant entry to include doctor_id
+          if (internshipData.student_id) {
+            await sequelize.query(
+              `UPDATE internship_participants 
+               SET doctor_id = ?, status = 'active'
+               WHERE internship_id = ? AND student_id = ? AND role = 'student'`,
+              { replacements: [updates.doctor_id, id, internshipData.student_id] }
+            );
+          }
+        } else {
+          // Remove doctor - update doctor participant entry
+          await sequelize.query(
+            `UPDATE internship_participants 
+             SET doctor_id = NULL, status = 'cancelled'
+             WHERE internship_id = ? AND role = 'doctor'`,
+            { replacements: [id] }
+          );
+
+          // Also update student participant entry
+          await sequelize.query(
+            `UPDATE internship_participants 
+             SET doctor_id = NULL
+             WHERE internship_id = ? AND role = 'student'`,
+            { replacements: [id] }
+          );
+        }
+      }
+    }
+
     const updated = await sequelize.query(
       `SELECT * FROM offers WHERE id = ?`,
       { replacements: [id], type: QueryTypes.SELECT }
@@ -363,10 +423,14 @@ const getInternshipApplications = async (req, res) => {
          u.last_name, 
          u.email,
          u.phone,
+         sp.matricule,
+         sp.speciality,
+         sp.academic_year,
          o.title as internship_title,
          o.hospital as hospital_name
        FROM applications a
        LEFT JOIN users u ON a.student_id = u.id
+       LEFT JOIN student_profiles sp ON a.student_id = sp.user_id
        LEFT JOIN offers o ON a.internship_id = o.id
        WHERE a.internship_id = ? 
        ORDER BY a.created_at DESC`,
@@ -390,6 +454,10 @@ const getInternshipApplications = async (req, res) => {
       last_name: app.last_name,
       email: app.email,
       phone: app.phone,
+      matricule: app.matricule,
+      speciality: app.speciality,
+      academic_year: app.academic_year,
+      year: app.academic_year, // Alias for backward compatibility
       internship_title: app.internship_title,
       hospital_name: app.hospital_name
     }));
@@ -427,12 +495,56 @@ const updateApplicationStatus = async (req, res) => {
     );
 
     const updated = await sequelize.query(
-      `SELECT a.*, u.first_name, u.last_name, u.email
+      `SELECT a.*, u.first_name, u.last_name, u.email, o.hospital, o.doctor_id, o.id as internship_id
        FROM applications a
        JOIN users u ON a.student_id = u.id
+       JOIN offers o ON a.internship_id = o.id
        WHERE a.id = ?`,
       { replacements: [id], type: QueryTypes.SELECT }
     );
+
+    const application = updated[0];
+
+      // If approved, create internship_participants entries
+    if (status === 'approved' && application) {
+      // Get hospital_id from the offer or user's hospital_id
+      const hospitalQuery = await sequelize.query(
+        `SELECT h.id as hospital_id FROM hospitals h 
+         JOIN offers o ON o.hospital = h.name 
+         WHERE o.id = ? LIMIT 1`,
+        { replacements: [application.internship_id], type: QueryTypes.SELECT }
+      );
+      const hospitalId = hospitalQuery[0]?.hospital_id || null;
+
+      // Get or assign a teacher for this student (you can implement teacher assignment logic here)
+      // For now, we'll leave teacher_id as NULL and it can be assigned later
+      const teacherId = null; // TODO: Implement teacher assignment logic
+
+      // Create student participant entry
+      await sequelize.query(
+        `INSERT INTO internship_participants (internship_id, student_id, doctor_id, teacher_id, hospital_id, role, status, assigned_at)
+         VALUES (?, ?, ?, ?, ?, 'student', 'active', NOW())
+         ON DUPLICATE KEY UPDATE status = 'active', doctor_id = COALESCE(?, doctor_id)`,
+        { replacements: [application.internship_id, application.student_id, application.doctor_id || null, teacherId, hospitalId, application.doctor_id || null] }
+      );
+
+      // If doctor is assigned, create/update doctor participant entry
+      if (application.doctor_id) {
+        await sequelize.query(
+          `INSERT INTO internship_participants (internship_id, student_id, doctor_id, teacher_id, hospital_id, role, status, assigned_at)
+           VALUES (?, ?, ?, ?, ?, 'doctor', 'active', NOW())
+           ON DUPLICATE KEY UPDATE status = 'active'`,
+          { replacements: [application.internship_id, application.student_id, application.doctor_id, teacherId, hospitalId] }
+        );
+      }
+    } else if (status === 'rejected' && application) {
+      // Remove student from internship_participants if rejected
+      await sequelize.query(
+        `UPDATE internship_participants SET status = 'cancelled' 
+         WHERE internship_id = ? AND student_id = ? AND role = 'student'`,
+        { replacements: [application.internship_id, application.student_id] }
+      );
+    }
 
     res.json({
       success: true,

@@ -17,6 +17,7 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [docType, setDocType] = useState('cv');
+  const [saving, setSaving] = useState(false);
 
   const fetchDocuments = async () => {
     try {
@@ -27,16 +28,53 @@ const Profile = () => {
     }
   };
 
+  const fetchProfile = async () => {
+    try {
+      const res = await authAPI.get('/students/profile');
+      if (res.data.success && res.data.data) {
+        const profileData = res.data.data;
+        setForm(prev => ({
+          first_name: profileData.first_name || prev.first_name || user?.first_name || '',
+          last_name: profileData.last_name || prev.last_name || user?.last_name || '',
+          matricule: profileData.matricule || prev.matricule || '',
+          speciality: profileData.speciality || prev.speciality || '',
+          year: profileData.academic_year || prev.year || ''
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to load profile', err);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
+    fetchProfile();
   }, []);
 
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
-    // No backend endpoint for student profile in current API; persist locally in auth context
-    const updated = { ...user, ...form };
-    updateUser(updated);
-    alert('Profile saved locally.');
+    setSaving(true);
+    try {
+      // Save to student_profiles table
+      await authAPI.post('/students/profile', {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        matricule: form.matricule,
+        speciality: form.speciality,
+        academic_year: form.year
+      });
+
+      // Update local user context with first_name and last_name
+      const updated = { ...user, first_name: form.first_name, last_name: form.last_name };
+      updateUser(updated);
+
+      alert('Profile saved successfully!');
+    } catch (err) {
+      console.error('Failed to save profile', err);
+      alert(err.response?.data?.message || 'Failed to save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSelectFile = (e) => {
@@ -89,7 +127,9 @@ const Profile = () => {
             <input value={form.year} onChange={e => setForm({...form, year: e.target.value})} />
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn btn-primary">Save Profile</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save Profile'}
+            </button>
           </div>
         </form>
 

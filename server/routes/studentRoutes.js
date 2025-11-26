@@ -23,6 +23,15 @@ router.post('/documents', verifyToken, upload.single('file'), studentController.
 // List student documents (authenticated)
 router.get('/documents', verifyToken, studentController.getStudentDocuments);
 
+// Get student documents by student_id (for hospitals/admins)
+router.get('/:studentId/documents', verifyToken, studentController.getStudentDocumentsByStudentId);
+
+// Save or update student profile (authenticated)
+router.post('/profile', verifyToken, studentController.saveStudentProfile);
+
+// Get student profile data (authenticated)
+router.get('/profile', verifyToken, studentController.getStudentProfileData);
+
 // Student profile and internships (used by frontend)
 router.get('/:studentId/profile', studentController.getStudentProfile);
 router.get('/:studentId/internships', studentController.getStudentInternships);

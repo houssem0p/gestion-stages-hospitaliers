@@ -579,6 +579,109 @@ const getEvaluation = async (req, res) => {
   }
 };
 
+// Get internships with evaluations and reports for a teacher
+const getTeacherInternships = async (req, res) => {
+  try {
+    const teacherId = req.user?.userId || req.user?.id;
+    if (!teacherId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    // Get all internships where teacher is assigned
+    const internships = await sequelize.query(
+      `SELECT DISTINCT
+         ip.internship_id,
+         o.id as offer_id,
+         o.title,
+         o.hospital,
+         o.speciality,
+         o.startDate,
+         o.endDate,
+         ip.student_id,
+         u.first_name as student_first_name,
+         u.last_name as student_last_name,
+         u.email as student_email,
+         sp.matricule,
+         sp.speciality as student_speciality,
+         sp.academic_year,
+         ip.doctor_id,
+         d.first_name as doctor_first_name,
+         d.last_name as doctor_last_name,
+         d.email as doctor_email
+       FROM internship_participants ip
+       JOIN offers o ON ip.internship_id = o.id
+       LEFT JOIN users u ON ip.student_id = u.id
+       LEFT JOIN student_profiles sp ON ip.student_id = sp.user_id
+       LEFT JOIN users d ON ip.doctor_id = d.id
+       WHERE ip.teacher_id = ? AND ip.status = 'active'
+       ORDER BY o.created_at DESC`,
+      { replacements: [teacherId], type: QueryTypes.SELECT }
+    );
+
+    // For each internship, get evaluation and report
+    const internshipsWithData = await Promise.all(
+      internships.map(async (internship) => {
+        // Get doctor evaluation
+        const [evaluation] = await sequelize.query(
+          `SELECT e.*, 
+             GROUP_CONCAT(
+               CONCAT(ec.category, ':', ec.criteria_text, ':', COALESCE(es.score, ''), ':', COALESCE(es.text_response, ''))
+               SEPARATOR '||'
+             ) as scores_data
+           FROM evaluations e
+           LEFT JOIN evaluation_scores es ON e.id = es.evaluation_id
+           LEFT JOIN evaluation_criteria ec ON es.criteria_id = ec.id
+           WHERE e.internship_id = ? AND e.student_id = ? AND e.doctor_id IS NOT NULL
+           GROUP BY e.id
+           ORDER BY e.created_at DESC
+           LIMIT 1`,
+          { replacements: [internship.internship_id, internship.student_id], type: QueryTypes.SELECT }
+        );
+
+        // Get detailed evaluation scores if evaluation exists
+        let evaluationScores = [];
+        if (evaluation) {
+          evaluationScores = await sequelize.query(
+            `SELECT 
+               es.*,
+               ec.category,
+               ec.criteria_text,
+               ec.description AS criteria_description,
+               ec.criteria_type,
+               ec.max_score
+             FROM evaluation_scores es
+             JOIN evaluation_criteria ec ON es.criteria_id = ec.id
+             WHERE es.evaluation_id = ?
+             ORDER BY ec.sort_order`,
+            { replacements: [evaluation.id], type: QueryTypes.SELECT }
+          );
+        }
+
+        // Get student report
+        const [report] = await sequelize.query(
+          `SELECT * FROM reports 
+           WHERE internship_id = ? AND student_id = ?
+           ORDER BY created_at DESC
+           LIMIT 1`,
+          { replacements: [internship.internship_id, internship.student_id], type: QueryTypes.SELECT }
+        );
+
+        return {
+          ...internship,
+          evaluation: evaluation ? {
+            ...evaluation,
+            scores: evaluationScores
+          } : null,
+          report: report || null
+        };
+      })
+    );
+
+    res.json({ success: true, data: internshipsWithData });
+  } catch (error) {
+    console.error('Error fetching teacher internships', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch internships' });
+  }
+};
+
 const getAttestationData = async (req, res) => {
   try {
     const internshipId = req.params.internshipId;
