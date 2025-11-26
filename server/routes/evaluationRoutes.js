@@ -17,6 +17,7 @@ router.get('/attestation/:internshipId/student/:studentId', evaluationsControlle
 
 // Create/update evaluation
 router.post('/', evaluationsController.upsertEvaluation);
+router.put('/:evaluationId', evaluationsController.upsertEvaluation);
 
 // Create template
 router.post('/templates', evaluationsController.createTemplate);

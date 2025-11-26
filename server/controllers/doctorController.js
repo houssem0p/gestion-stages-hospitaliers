@@ -1,11 +1,40 @@
 const { sequelize } = require('../config/database');
 const { QueryTypes } = require('sequelize');
 
+// Helper to check if a column exists in a table
+const columnExists = async (table, column) => {
+  try {
+    const rows = await sequelize.query(
+      `SHOW COLUMNS FROM \`${table}\` LIKE ?`,
+      { replacements: [column], type: QueryTypes.SELECT }
+    );
+    return rows && rows.length > 0;
+  } catch (err) {
+    console.warn('columnExists check failed for', table, column, err.message);
+    return false;
+  }
+};
+
 const getDoctorInternships = async (req, res) => {
   try {
     const doctorId = req.user.userId; // From JWT token
     
     console.log('Fetching internships for doctor ID:', doctorId);
+
+    // Check which columns exist
+    const hasHospitalCol = await columnExists('offers', 'hospital');
+    const hasHospitalIdCol = await columnExists('offers', 'hospital_id');
+
+    // Build the hospital name selection based on available columns
+    let hospitalSelect = 'NULL as hospital_name';
+    let hospitalJoin = '';
+    
+    if (hasHospitalIdCol) {
+      hospitalSelect = 'h.name as hospital_name';
+      hospitalJoin = 'LEFT JOIN hospitals h ON o.hospital_id = h.id';
+    } else if (hasHospitalCol) {
+      hospitalSelect = 'o.hospital as hospital_name';
+    }
 
     // Get internships for this doctor
     const internships = await sequelize.query(
@@ -13,13 +42,13 @@ const getDoctorInternships = async (req, res) => {
         o.id,
         o.title,
         o.description,
-        o.start_date,
-        o.end_date,
+        o.startDate as start_date,
+        o.endDate as end_date,
         o.speciality,
-        h.name as hospital_name,
+        ${hospitalSelect},
         COUNT(a.id) as applicant_count
        FROM offers o 
-       LEFT JOIN hospitals h ON o.hospital_id = h.id
+       ${hospitalJoin}
        LEFT JOIN applications a ON o.id = a.internship_id
        WHERE o.doctor_id = ?
        GROUP BY o.id

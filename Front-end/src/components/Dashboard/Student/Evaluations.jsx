@@ -245,10 +245,18 @@ const Evaluations = () => {
 
   // Component to show actual evaluation results
   const EvaluationResults = ({ evaluation }) => {
-    // Parse scores from JSON string or object
-    const scores = typeof evaluation.scores === 'string' 
-      ? JSON.parse(evaluation.scores) 
-      : evaluation.scores;
+    // Scores come from evaluation_scores table as an array
+    const scores = Array.isArray(evaluation.scores) ? evaluation.scores : [];
+
+    // Group scores by category
+    const scoresByCategory = {};
+    scores.forEach(scoreData => {
+      const category = scoreData.category || 'General';
+      if (!scoresByCategory[category]) {
+        scoresByCategory[category] = [];
+      }
+      scoresByCategory[category].push(scoreData);
+    });
 
     return (
       <>
@@ -256,24 +264,48 @@ const Evaluations = () => {
           <h5>📈 Résultats de l'Évaluation</h5>
         </div>
 
-        {scores && Object.keys(scores).length > 0 ? (
+        {scores && scores.length > 0 ? (
           <div className="evaluation-grid">
-            {Object.entries(scores).map(([category, categoryScores]) => (
+            {Object.entries(scoresByCategory).map(([category, categoryScores]) => (
               <div key={category} className="criteria-card">
                 <h5>{category}</h5>
                 <div className="points-list">
-                  {Object.entries(categoryScores).map(([point, score]) => (
-                    <div key={point} className="point-item">
-                      <span className="point-text">{point}</span>
-                      <div className="score-display">
-                        {Array.from({length: 5}, (_, i) => (
-                          <span 
-                            key={i} 
-                            className={`score-dot ${i < score ? 'filled' : ''}`}
-                          />
-                        ))}
-                        <span className="score-value">({score}/5)</span>
+                  {categoryScores.map((scoreData) => (
+                    <div key={scoreData.criteria_id || scoreData.id} className="point-item">
+                      <div className="point-header">
+                        <span className="point-text">{scoreData.criteria_text}</span>
+                        {scoreData.description && (
+                          <small className="criteria-desc">{scoreData.description}</small>
+                        )}
                       </div>
+                      <div className="score-display">
+                        {scoreData.criteria_type === 'scale' && scoreData.score !== null ? (
+                          <>
+                            {Array.from({length: scoreData.max_score || 5}, (_, i) => (
+                              <span 
+                                key={i} 
+                                className={`score-dot ${i < scoreData.score ? 'filled' : ''}`}
+                              />
+                            ))}
+                            <span className="score-value">({scoreData.score}/{scoreData.max_score || 5})</span>
+                          </>
+                        ) : scoreData.criteria_type === 'text' && scoreData.text_response ? (
+                          <div className="text-response">
+                            <p>{scoreData.text_response}</p>
+                          </div>
+                        ) : scoreData.criteria_type === 'boolean' && scoreData.text_response ? (
+                          <span className="boolean-response">
+                            {scoreData.text_response === 'true' ? '✓ Oui' : '✗ Non'}
+                          </span>
+                        ) : (
+                          <span className="no-score">Non évalué</span>
+                        )}
+                      </div>
+                      {scoreData.comments && (
+                        <div className="score-comments">
+                          <small>Commentaire: {scoreData.comments}</small>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -290,7 +322,7 @@ const Evaluations = () => {
           <h5>💬 Commentaires du Médecin</h5>
           <p>{evaluation.comments || "Aucun commentaire fourni."}</p>
           <div className="evaluation-meta">
-            <span>Note finale: <strong>{evaluation.final_grade}</strong></span>
+            <span>Note finale: <strong>{evaluation.final_grade || 'N/A'}</strong></span>
           </div>
         </div>
       </>

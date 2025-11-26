@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import authAPI from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import ManageEvaluationTemplates from './ManageEvaluationTemplates';
+import './ManageOffers.css';
 
 const emptyForm = { 
   title: '', 
@@ -120,205 +121,205 @@ const ManageOffers = () => {
   };
 
   return (
-      <div className="page manage-offers">
-        <h2>Manage Internship Offers — Create / Edit / Archive</h2>
-        
-        {!hospitalId && (
-          <div className="error-message">
-            Your account is not associated with a hospital. Cannot manage offers.
-          </div>
-        )}
+    <div className="page manage-offers">
+      <h2>Manage Internship Offers — Create / Edit / Archive</h2>
+      
+      {!hospitalId && (
+        <div className="error-message">
+          Your account is not associated with a hospital. Cannot manage offers.
+        </div>
+      )}
 
-        <div className="manage-layout">
-          {/* Left Panel - Offers List */}
-          <div className="manage-left">
-            <div className="section-header">
-              <h3>Existing Offers</h3>
-              <button 
-                onClick={startCreate} 
-                className="btn btn-primary"
-                disabled={!hospitalId}
-              >
-                + Create New Offer
-              </button>
-            </div>
-
-            {loading && <div className="loading">Loading offers...</div>}
-
-            <div className="offers-list">
-              {internships.map(internship => (
-                <div key={internship.id} className="offer-card">
-                  <div className="offer-header">
-                    <h4 className="offer-title">{internship.title}</h4>
-                    <span className="offer-speciality">{internship.speciality}</span>
-                  </div>
-                  <div className="offer-details">
-                    <p className="offer-desc">{internship.description}</p>
-                    <div className="offer-meta">
-                      {internship.startDate && (
-                        <span>Start: {new Date(internship.startDate).toLocaleDateString()}</span>
-                      )}
-                      {internship.endDate && (
-                        <span>End: {new Date(internship.endDate).toLocaleDateString()}</span>
-                      )}
-                      {internship.hospital && (
-                        <span>Hospital: {internship.hospital}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="offer-actions">
-                    <button 
-                      onClick={() => startEdit(internship)} 
-                      className="btn btn-secondary"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => archive(internship.id)} 
-                      className="btn btn-danger"
-                    >
-                      Archive
-                    </button>
-                  </div>
-                </div>
-              ))}
-              
-              {internships.length === 0 && !loading && (
-                <div className="no-offers">
-                  No internship offers found. Create your first offer!
-                </div>
-              )}
-            </div>
+      <div className="manage-layout">
+        {/* Left Panel - Offers List */}
+        <div className="manage-left">
+          <div className="section-header">
+            <h3>Existing Offers</h3>
+            <button 
+              onClick={startCreate} 
+              className="btn btn-primary"
+              disabled={!hospitalId}
+            >
+              + Create New Offer
+            </button>
           </div>
 
-          {/* Right Panel - Form */}
-          <div className="manage-right">
-            <div className="form-section">
-              <h3>{editing ? 'Edit Offer' : 'Create New Offer'}</h3>
-              
-              <div className="offer-form">
-                <div className="form-group">
-                  <label>Title *</label>
-                  <input 
-                    type="text" 
-                    placeholder="Internship title"
-                    value={form.title}
-                    onChange={e => setForm({...form, title: e.target.value})}
-                    disabled={!hospitalId}
-                  />
+          {loading && <div className="loading">Loading offers...</div>}
+
+          <div className="offers-list">
+            {internships.map(internship => (
+              <div key={internship.id} className="offer-card">
+                <div className="offer-header">
+                  <h4 className="offer-title">{internship.title}</h4>
+                  <span className="offer-speciality">{internship.speciality}</span>
                 </div>
-
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea 
-                    placeholder="Detailed description of the internship"
-                    value={form.description}
-                    onChange={e => setForm({...form, description: e.target.value})}
-                    disabled={!hospitalId}
-                    rows="3"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Speciality *</label>
-                  <input 
-                    type="text" 
-                    placeholder="Medical speciality"
-                    value={form.speciality}
-                    onChange={e => setForm({...form, speciality: e.target.value})}
-                    disabled={!hospitalId}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Supervising Doctor</label>
-                  <select 
-                    value={form.doctor_id}
-                    onChange={e => setForm({...form, doctor_id: e.target.value})}
-                    disabled={!hospitalId}
-                  >
-                    <option value="">Select a doctor</option>
-                    {doctors.map(doctor => (
-                      <option key={doctor.id} value={doctor.id}>
-                        {doctor.first_name} {doctor.last_name} 
-                        {doctor.medical_specialty && ` (${doctor.medical_specialty})`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Start Date</label>
-                    <input 
-                      type="date" 
-                      value={form.startDate}
-                      onChange={e => setForm({...form, startDate: e.target.value})}
-                      disabled={!hospitalId}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>End Date</label>
-                    <input 
-                      type="date" 
-                      value={form.endDate}
-                      onChange={e => setForm({...form, endDate: e.target.value})}
-                      disabled={!hospitalId}
-                    />
+                <div className="offer-details">
+                  <p className="offer-desc">{internship.description}</p>
+                  <div className="offer-meta">
+                    {internship.startDate && (
+                      <span>Start: {new Date(internship.startDate).toLocaleDateString()}</span>
+                    )}
+                    {internship.endDate && (
+                      <span>End: {new Date(internship.endDate).toLocaleDateString()}</span>
+                    )}
+                    {internship.hospital && (
+                      <span>Hospital: {internship.hospital}</span>
+                    )}
                   </div>
                 </div>
-
-                <div className="form-group">
-                  <label>Address</label>
-                  <input 
-                    type="text" 
-                    placeholder="Hospital address"
-                    value={form.address}
-                    onChange={e => setForm({...form, address: e.target.value})}
-                    disabled={!hospitalId}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Requirements</label>
-                  <textarea 
-                    placeholder="Specific requirements for applicants"
-                    value={form.requirements}
-                    onChange={e => setForm({...form, requirements: e.target.value})}
-                    disabled={!hospitalId}
-                    rows="3"
-                  />
-                </div>
-
-                <div className="form-actions">
+                <div className="offer-actions">
                   <button 
-                    onClick={save} 
-                    disabled={loading || !hospitalId || !form.title || !form.speciality}
-                    className="btn btn-primary"
+                    onClick={() => startEdit(internship)} 
+                    className="btn btn-secondary"
                   >
-                    {loading ? 'Saving...' : (editing ? 'Update Offer' : 'Create Offer')}
+                    Edit
                   </button>
-                  
-                  {editing && (
-                    <button 
-                      onClick={cancelEdit}
-                      className="btn btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => archive(internship.id)} 
+                    className="btn btn-danger"
+                  >
+                    Archive
+                  </button>
                 </div>
               </div>
-            </div>
+            ))}
+            
+            {internships.length === 0 && !loading && (
+              <div className="no-offers">
+                No internship offers found. Create your first offer!
+              </div>
+            )}
+          </div>
+        </div>
 
-            {/* Placeholder for ManageEvaluationTemplates component */}
-            <div className="evaluation-templates-section">
-              <ManageEvaluationTemplates />
+        {/* Right Panel - Form + Evaluation Templates */}
+        <div className="manage-right">
+          <div className="form-section">
+            <h3>{editing ? 'Edit Offer' : 'Create New Offer'}</h3>
+            
+            <div className="offer-form">
+              <div className="form-group">
+                <label>Title *</label>
+                <input 
+                  type="text" 
+                  placeholder="Internship title"
+                  value={form.title}
+                  onChange={e => setForm({...form, title: e.target.value})}
+                  disabled={!hospitalId}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea 
+                  placeholder="Detailed description of the internship"
+                  value={form.description}
+                  onChange={e => setForm({...form, description: e.target.value})}
+                  disabled={!hospitalId}
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Speciality *</label>
+                <input 
+                  type="text" 
+                  placeholder="Medical speciality"
+                  value={form.speciality}
+                  onChange={e => setForm({...form, speciality: e.target.value})}
+                  disabled={!hospitalId}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Supervising Doctor</label>
+                <select 
+                  value={form.doctor_id}
+                  onChange={e => setForm({...form, doctor_id: e.target.value})}
+                  disabled={!hospitalId}
+                >
+                  <option value="">Select a doctor</option>
+                  {doctors.map(doctor => (
+                    <option key={doctor.id} value={doctor.id}>
+                      {doctor.first_name} {doctor.last_name} 
+                      {doctor.medical_specialty && ` (${doctor.medical_specialty})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <input 
+                    type="date" 
+                    value={form.startDate}
+                    onChange={e => setForm({...form, startDate: e.target.value})}
+                    disabled={!hospitalId}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date</label>
+                  <input 
+                    type="date" 
+                    value={form.endDate}
+                    onChange={e => setForm({...form, endDate: e.target.value})}
+                    disabled={!hospitalId}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Address</label>
+                <input 
+                  type="text" 
+                  placeholder="Hospital address"
+                  value={form.address}
+                  onChange={e => setForm({...form, address: e.target.value})}
+                  disabled={!hospitalId}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Requirements</label>
+                <textarea 
+                  placeholder="Specific requirements for applicants"
+                  value={form.requirements}
+                  onChange={e => setForm({...form, requirements: e.target.value})}
+                  disabled={!hospitalId}
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-actions">
+                <button 
+                  onClick={save} 
+                  disabled={loading || !hospitalId || !form.title || !form.speciality}
+                  className="btn btn-primary"
+                >
+                  {loading ? 'Saving...' : (editing ? 'Update Offer' : 'Create Offer')}
+                </button>
+                
+                {editing && (
+                  <button 
+                    onClick={cancelEdit}
+                    className="btn btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
+          </div>
+
+          {/* Evaluation Templates manager, scoped to this offer */}
+          <div className="evaluation-templates-section">
+            <ManageEvaluationTemplates currentInternshipId={editing} />
           </div>
         </div>
       </div>
+    </div>
   );
 };
 

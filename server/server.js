@@ -13,6 +13,7 @@ const evaluationRoutes = require('./routes/evaluationRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const evaluationTemplateRoutes = require('./routes/evaluationTemplateRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -51,6 +52,7 @@ app.use('/api/evaluations', evaluationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/evaluation-templates', evaluationTemplateRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/doctors', doctorRoutes);
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ 

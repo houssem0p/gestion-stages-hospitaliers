@@ -125,46 +125,33 @@ const DoctorEvaluations = () => {
         const evalRes = await authAPI.get(
           `/evaluations/internship/${selectedInternship.id}?studentId=${student.student_id}`
         );
-        existingEvaluation = evalRes.data.data && evalRes.data.data.length > 0 ? evalRes.data.data[0] : null;
+        existingEvaluation = evalRes.data.data || null;
       } catch (err) {
         console.log('No existing evaluation found');
       }
 
       // Initialize scores from existing evaluation or create new ones
       const initialScores = {};
-      if (existingEvaluation && existingEvaluation.scores) {
-        // Parse existing scores
-        try {
-          const existingScores = typeof existingEvaluation.scores === 'string' 
-            ? JSON.parse(existingEvaluation.scores) 
-            : existingEvaluation.scores;
-          
-          // Map existing scores to criteria
-          template.criteria.forEach(criterion => {
-            // Try to find the score for this criterion
-            let foundScore = null;
-            
-            // Check if scores are organized by category
-            if (existingScores[criterion.category]) {
-              foundScore = existingScores[criterion.category][criterion.criteria_text];
+      if (existingEvaluation && existingEvaluation.scores && Array.isArray(existingEvaluation.scores)) {
+        // Scores come from evaluation_scores table as an array
+        existingEvaluation.scores.forEach(scoreData => {
+          // Use score or text_response depending on criteria type
+          const criterion = template.criteria.find(c => c.id === scoreData.criteria_id);
+          if (criterion) {
+            if (criterion.criteria_type === 'text' || criterion.criteria_type === 'boolean') {
+              initialScores[criterion.id] = scoreData.text_response || '';
             } else {
-              // Check if scores are flat
-              Object.values(existingScores).forEach(categoryScores => {
-                if (typeof categoryScores === 'object' && categoryScores[criterion.criteria_text]) {
-                  foundScore = categoryScores[criterion.criteria_text];
-                }
-              });
+              initialScores[criterion.id] = scoreData.score || '';
             }
-            
-            initialScores[criterion.id] = foundScore || '';
-          });
-        } catch (parseError) {
-          console.error('Error parsing existing scores:', parseError);
-          // Initialize empty scores if parsing fails
-          template.criteria.forEach(criterion => {
+          }
+        });
+        
+        // Fill in empty scores for criteria that don't have scores yet
+        template.criteria.forEach(criterion => {
+          if (initialScores[criterion.id] === undefined) {
             initialScores[criterion.id] = '';
-          });
-        }
+          }
+        });
       } else {
         // Initialize empty scores
         template.criteria.forEach(criterion => {
@@ -276,15 +263,25 @@ const DoctorEvaluations = () => {
       // Calculate final grade
       const finalGrade = calculateFinalGrade(currentEval.scores, currentEval.template);
       
-      // Format scores for backend in the structure your API expects
+      // Format scores for backend using criteria_id as keys
+      // Format: { criteria_id: score_value }
       const formattedScores = {};
       currentEval.template.criteria.forEach(criterion => {
-        const category = criterion.category;
-        if (!formattedScores[category]) {
-          formattedScores[category] = {};
+        const scoreValue = currentEval.scores[criterion.id];
+        if (scoreValue !== null && scoreValue !== undefined && scoreValue !== '') {
+          // Handle different criteria types
+          if (criterion.criteria_type === 'text' || criterion.criteria_type === 'boolean') {
+            formattedScores[criterion.id] = {
+              text_response: scoreValue,
+              score: null
+            };
+          } else {
+            formattedScores[criterion.id] = {
+              score: parseFloat(scoreValue) || 0,
+              text_response: null
+            };
+          }
         }
-        const scoreValue = parseFloat(currentEval.scores[criterion.id]) || 0;
-        formattedScores[category][criterion.criteria_text] = scoreValue;
       });
 
       const payload = {

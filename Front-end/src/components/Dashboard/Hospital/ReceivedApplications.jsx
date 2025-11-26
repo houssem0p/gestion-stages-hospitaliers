@@ -8,6 +8,8 @@ const ReceivedApplications = () => {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedStudentProfile, setSelectedStudentProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const hospitalId = user?.hospital_id;
 
@@ -55,6 +57,20 @@ const ReceivedApplications = () => {
     } catch (err) {
       console.error(err);
       alert('Failed to update status: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const viewStudentProfile = async (studentId) => {
+    try {
+      setProfileLoading(true);
+      setSelectedStudentProfile(null);
+      const res = await authAPI.get(`/students/${studentId}/profile`);
+      setSelectedStudentProfile(res.data.data || null);
+    } catch (err) {
+      console.error('Failed to load student profile', err);
+      alert('Impossible de charger le profil étudiant');
+    } finally {
+      setProfileLoading(false);
     }
   };
 
@@ -131,12 +147,15 @@ const ReceivedApplications = () => {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {applications.map(app => (
-                <div key={app.id} style={{ 
-                  padding: 16, 
-                  border: '1px solid #e0e0e0', 
-                  borderRadius: 8,
-                  background: 'white'
-                }}>
+                <div
+                  key={app.id}
+                  style={{
+                    padding: 16,
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 8,
+                    background: 'white'
+                  }}
+                >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
@@ -151,14 +170,16 @@ const ReceivedApplications = () => {
                         </div>
                       )}
                     </div>
-                    <div style={{ 
-                      padding: '4px 8px', 
-                      background: getStatusColor(app.status),
-                      color: 'white',
-                      borderRadius: 12,
-                      fontSize: '12px',
-                      fontWeight: 'bold'
-                    }}>
+                    <div
+                      style={{
+                        padding: '4px 8px',
+                        background: getStatusColor(app.status),
+                        color: 'white',
+                        borderRadius: 12,
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}
+                    >
                       {app.status?.toUpperCase() || 'PENDING'}
                     </div>
                   </div>
@@ -174,38 +195,92 @@ const ReceivedApplications = () => {
                     Postulé le: {new Date(app.created_at).toLocaleString('fr-FR')}
                   </div>
 
-                  {app.status === 'pending' && (
-                    <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                      <button 
-                        onClick={() => updateStatus(app.id, 'approved')}
-                        style={{ 
-                          padding: '8px 16px',
-                          background: '#4caf50',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: 4,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        ✅ Approuver
-                      </button>
-                      <button 
-                        onClick={() => updateStatus(app.id, 'rejected')}
-                        style={{ 
-                          padding: '8px 16px',
-                          background: '#f44336',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: 4,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        ❌ Rejeter
-                      </button>
-                    </div>
-                  )}
+                  <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => viewStudentProfile(app.student_id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 4,
+                        border: '1px solid #1976d2',
+                        background: 'white',
+                        color: '#1976d2',
+                        cursor: 'pointer',
+                        fontSize: 12
+                      }}
+                    >
+                      👁 Voir profil
+                    </button>
+
+                    {app.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => updateStatus(app.id, 'approved')}
+                          style={{
+                            padding: '8px 16px',
+                            background: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✅ Approuver
+                        </button>
+                        <button
+                          onClick={() => updateStatus(app.id, 'rejected')}
+                          style={{
+                            padding: '8px 16px',
+                            background: '#f44336',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ❌ Rejeter
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
+
+              {/* Student profile detail panel */}
+              {profileLoading && (
+                <div style={{ marginTop: 16, color: '#666' }}>Chargement du profil étudiant...</div>
+              )}
+              {selectedStudentProfile && (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: 16,
+                    borderRadius: 8,
+                    border: '1px solid #e0e0e0',
+                    background: '#fafafa'
+                  }}
+                >
+                  <h4>Profil de l'étudiant</h4>
+                  <p>
+                    <strong>Nom:</strong> {selectedStudentProfile.first_name}{' '}
+                    {selectedStudentProfile.last_name}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {selectedStudentProfile.email}
+                  </p>
+                  <p>
+                    <strong>Téléphone:</strong> {selectedStudentProfile.phone || 'Non fourni'}
+                  </p>
+                  <p>
+                    <strong>Spécialité:</strong> {selectedStudentProfile.speciality || '—'}
+                  </p>
+                  <p>
+                    <strong>Année:</strong> {selectedStudentProfile.year || '—'}
+                  </p>
+                  <p>
+                    <strong>Matricule:</strong> {selectedStudentProfile.matricule || '—'}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

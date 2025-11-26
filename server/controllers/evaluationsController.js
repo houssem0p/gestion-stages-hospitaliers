@@ -1,6 +1,20 @@
 const { sequelize } = require('../config/database');
 const { QueryTypes } = require('sequelize');
 
+// Helper to check if a column exists in a table
+const columnExists = async (table, column) => {
+  try {
+    const rows = await sequelize.query(
+      `SHOW COLUMNS FROM \`${table}\` LIKE ?`,
+      { replacements: [column], type: QueryTypes.SELECT }
+    );
+    return rows && rows.length > 0;
+  } catch (err) {
+    console.warn('columnExists check failed for', table, column, err.message);
+    return false;
+  }
+};
+
 // Get evaluations for a student with detailed scores
 const getEvaluationsByStudent = async (req, res) => {
   try {
@@ -99,10 +113,11 @@ const getEvaluationsByStudent = async (req, res) => {
   }
 };
 
-// Create or update evaluation (supports both JSON and detailed scores)
+// Create or update evaluation (uses evaluation_scores table)
 const upsertEvaluation = async (req, res) => {
   try {
-    const { internship_id, student_id, doctor_id, template_id, scores, detailed_scores, comments, final_grade } = req.body;
+    const { internship_id, student_id, doctor_id, template_id, scores, comments, final_grade } = req.body;
+    const evaluationIdFromUrl = req.params.evaluationId;
     
     if (!internship_id || !student_id) {
       return res.status(400).json({ 
@@ -111,84 +126,176 @@ const upsertEvaluation = async (req, res) => {
       });
     }
 
-    // Check if evaluation exists
-    const existing = await sequelize.query(
-      `SELECT * FROM evaluations WHERE internship_id = ? AND student_id = ? LIMIT 1`,
-      { replacements: [internship_id, student_id], type: QueryTypes.SELECT }
-    );
+    if (!template_id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'template_id is required' 
+      });
+    }
 
     let evaluationId;
+    let existing = null;
 
-    if (existing && existing.length > 0) {
+    // If evaluationId is in URL (PUT request), use it
+    if (evaluationIdFromUrl) {
+      existing = await sequelize.query(
+        `SELECT * FROM evaluations WHERE id = ? LIMIT 1`,
+        { replacements: [evaluationIdFromUrl], type: QueryTypes.SELECT }
+      );
+      if (existing && existing.length > 0) {
+        evaluationId = parseInt(evaluationIdFromUrl);
+      } else {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Evaluation not found' 
+        });
+      }
+    } else {
+      // Check if evaluation exists by internship and student
+      existing = await sequelize.query(
+        `SELECT * FROM evaluations WHERE internship_id = ? AND student_id = ? LIMIT 1`,
+        { replacements: [internship_id, student_id], type: QueryTypes.SELECT }
+      );
+      if (existing && existing.length > 0) {
+        evaluationId = existing[0].id;
+      }
+    }
+
+    // Check if columns exist and add them if missing
+    let hasCommentsCol = await columnExists('evaluations', 'comments');
+    let hasTemplateIdCol = await columnExists('evaluations', 'template_id');
+    let hasFinalGradeCol = await columnExists('evaluations', 'final_grade');
+    
+    // Add missing columns if they don't exist
+    if (!hasCommentsCol) {
+      try {
+        await sequelize.query(
+          `ALTER TABLE evaluations ADD COLUMN comments TEXT`,
+          { type: QueryTypes.RAW }
+        );
+        hasCommentsCol = true;
+        console.log('Added comments column to evaluations table');
+      } catch (err) {
+        console.warn('Failed to add comments column:', err.message);
+      }
+    }
+    
+    if (!hasTemplateIdCol) {
+      try {
+        await sequelize.query(
+          `ALTER TABLE evaluations ADD COLUMN template_id INT`,
+          { type: QueryTypes.RAW }
+        );
+        hasTemplateIdCol = true;
+        console.log('Added template_id column to evaluations table');
+      } catch (err) {
+        console.warn('Failed to add template_id column:', err.message);
+      }
+    }
+    
+    if (!hasFinalGradeCol) {
+      try {
+        await sequelize.query(
+          `ALTER TABLE evaluations ADD COLUMN final_grade VARCHAR(50)`,
+          { type: QueryTypes.RAW }
+        );
+        hasFinalGradeCol = true;
+        console.log('Added final_grade column to evaluations table');
+      } catch (err) {
+        console.warn('Failed to add final_grade column:', err.message);
+      }
+    }
+
+    if (existing && existing.length > 0 && evaluationId) {
       // Update existing evaluation
       evaluationId = existing[0].id;
+      
+      // Build update query dynamically
+      const updateFields = ['doctor_id = ?'];
+      const updateValues = [doctor_id || null];
+      
+      if (hasTemplateIdCol) {
+        updateFields.push('template_id = ?');
+        updateValues.push(template_id);
+      }
+      
+      if (hasCommentsCol) {
+        updateFields.push('comments = ?');
+        updateValues.push(comments || null);
+      }
+      
+      if (hasFinalGradeCol) {
+        updateFields.push('final_grade = ?');
+        updateValues.push(final_grade || null);
+      }
+      
+      updateFields.push('updated_at = NOW()');
+      updateValues.push(evaluationId);
+      
       await sequelize.query(
-        `UPDATE evaluations SET 
-          doctor_id = ?, 
-          template_id = ?,
-          scores = ?,
-          comments = ?, 
-          final_grade = ?, 
-          updated_at = NOW() 
-         WHERE id = ?`,
-        { 
-          replacements: [
-            doctor_id || null, 
-            template_id || null,
-            scores ? JSON.stringify(scores) : null,
-            comments || null, 
-            final_grade || null, 
-            evaluationId
-          ] 
-        }
+        `UPDATE evaluations SET ${updateFields.join(', ')} WHERE id = ?`,
+        { replacements: updateValues }
       );
     } else {
       // Create new evaluation
-      const result = await sequelize.query(
-        `INSERT INTO evaluations 
-         (internship_id, student_id, doctor_id, template_id, scores, comments, final_grade, created_at, updated_at) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        { 
-          replacements: [
-            internship_id, 
-            student_id, 
-            doctor_id || null, 
-            template_id || null,
-            scores ? JSON.stringify(scores) : null,
-            comments || null, 
-            final_grade || null
-          ] 
+      const insertFields = ['internship_id', 'student_id', 'doctor_id'];
+      const insertValues = [internship_id, student_id, doctor_id || null];
+      
+      if (hasTemplateIdCol) {
+        insertFields.push('template_id');
+        insertValues.push(template_id);
+      }
+      
+      if (hasCommentsCol) {
+        insertFields.push('comments');
+        insertValues.push(comments || null);
+      }
+      
+      if (hasFinalGradeCol) {
+        insertFields.push('final_grade');
+        insertValues.push(final_grade || null);
+      }
+      
+      insertFields.push('created_at', 'updated_at');
+      
+      // Build placeholders - use NOW() for timestamps, ? for others
+      const placeholders = insertFields.map(field => {
+        if (field === 'created_at' || field === 'updated_at') {
+          return 'NOW()';
         }
+        return '?';
+      }).join(', ');
+      
+      await sequelize.query(
+        `INSERT INTO evaluations (${insertFields.join(', ')}) VALUES (${placeholders})`,
+        { replacements: insertValues }
       );
-      evaluationId = result[0];
+      
+      // Get the inserted ID
+      const inserted = await sequelize.query(
+        `SELECT LAST_INSERT_ID() as id`,
+        { type: QueryTypes.SELECT }
+      );
+      evaluationId = inserted[0]?.id;
     }
 
-    // Handle detailed scores if provided
-    if (detailed_scores && Array.isArray(detailed_scores)) {
-      for (const score of detailed_scores) {
-        const { criteria_id, score_value, text_response, comments } = score;
+    // Handle scores - scores should be an object with criteria_id as keys
+    // Format: { criteria_id: { score: number, text_response: string } }
+    if (scores && typeof scores === 'object') {
+      // Delete existing scores for this evaluation
+      await sequelize.query(
+        `DELETE FROM evaluation_scores WHERE evaluation_id = ?`,
+        { replacements: [evaluationId] }
+      );
 
-        // Check if score exists
-        const existingScore = await sequelize.query(
-          `SELECT * FROM evaluation_scores WHERE evaluation_id = ? AND criteria_id = ? LIMIT 1`,
-          { replacements: [evaluationId, criteria_id], type: QueryTypes.SELECT }
-        );
+      // Insert new scores
+      for (const [criteriaId, scoreData] of Object.entries(scores)) {
+        const scoreValue = typeof scoreData === 'object' ? scoreData.score : scoreData;
+        const textResponse = typeof scoreData === 'object' ? scoreData.text_response : null;
+        const scoreComments = typeof scoreData === 'object' ? scoreData.comments : null;
 
-        if (existingScore && existingScore.length > 0) {
-          // Update existing score
-          await sequelize.query(
-            `UPDATE evaluation_scores SET score = ?, text_response = ?, comments = ?, updated_at = NOW() WHERE id = ?`,
-            { 
-              replacements: [
-                score_value || null, 
-                text_response || null, 
-                comments || null, 
-                existingScore[0].id
-              ] 
-            }
-          );
-        } else {
-          // Insert new score
+        // Only insert if there's a value
+        if (scoreValue !== null && scoreValue !== undefined && scoreValue !== '') {
           await sequelize.query(
             `INSERT INTO evaluation_scores 
              (evaluation_id, criteria_id, score, text_response, comments, created_at, updated_at) 
@@ -196,10 +303,10 @@ const upsertEvaluation = async (req, res) => {
             { 
               replacements: [
                 evaluationId, 
-                criteria_id, 
-                score_value || null, 
-                text_response || null, 
-                comments || null
+                parseInt(criteriaId), 
+                parseFloat(scoreValue) || null, 
+                textResponse || null, 
+                scoreComments || null
               ] 
             }
           );
@@ -207,16 +314,13 @@ const upsertEvaluation = async (req, res) => {
       }
     }
 
-    // Get the complete evaluation
-    const evaluation = await sequelize.query(
-      `SELECT * FROM evaluations WHERE id = ?`,
-      { replacements: [evaluationId], type: QueryTypes.SELECT }
-    );
+    // Get the complete evaluation with scores
+    const evaluation = await getEvaluationWithScores(evaluationId);
 
     res.json({ 
       success: true, 
       message: existing && existing.length > 0 ? 'Evaluation updated' : 'Evaluation created',
-      data: evaluation[0] || null 
+      data: evaluation 
     });
 
   } catch (error) {
@@ -228,14 +332,67 @@ const upsertEvaluation = async (req, res) => {
   }
 };
 
+// Helper function to get evaluation with scores from evaluation_scores table
+const getEvaluationWithScores = async (evaluationId) => {
+  const evaluation = await sequelize.query(
+    `SELECT * FROM evaluations WHERE id = ? LIMIT 1`,
+    { replacements: [evaluationId], type: QueryTypes.SELECT }
+  );
+
+  if (!evaluation || evaluation.length === 0) {
+    return null;
+  }
+
+  // Get scores from evaluation_scores table
+  const scores = await sequelize.query(
+    `SELECT 
+       es.*,
+       ec.category,
+       ec.criteria_text,
+       ec.description AS criteria_description,
+       ec.criteria_type,
+       ec.weight,
+       ec.max_score,
+       ec.is_required
+     FROM evaluation_scores es
+     JOIN evaluation_criteria ec ON es.criteria_id = ec.id
+     WHERE es.evaluation_id = ?
+     ORDER BY ec.sort_order`,
+    { replacements: [evaluationId], type: QueryTypes.SELECT }
+  );
+
+  return {
+    ...evaluation[0],
+    scores: scores || []
+  };
+};
+
 // Get evaluation template for an internship
 const getEvaluationTemplate = async (req, res) => {
   try {
     const internshipId = req.params.internshipId;
     
-    const template = await sequelize.query(
+    // First, check if template exists
+    const templateCheck = await sequelize.query(
+      `SELECT * FROM evaluation_templates 
+       WHERE internship_id = ? AND is_active = true 
+       LIMIT 1`,
+      { replacements: [internshipId], type: QueryTypes.SELECT }
+    );
+
+    if (!templateCheck || templateCheck.length === 0) {
+      return res.json({ 
+        success: true, 
+        data: null,
+        message: 'No evaluation template found for this internship' 
+      });
+    }
+
+    const templateInfo = templateCheck[0];
+
+    // Get criteria for this template (using LEFT JOIN to handle templates without criteria)
+    const criteria = await sequelize.query(
       `SELECT 
-         et.*,
          ec.id AS criteria_id,
          ec.category,
          ec.criteria_text,
@@ -245,28 +402,19 @@ const getEvaluationTemplate = async (req, res) => {
          ec.max_score,
          ec.sort_order,
          ec.is_required
-       FROM evaluation_templates et
-       JOIN evaluation_criteria ec ON et.id = ec.template_id
-       WHERE et.internship_id = ? AND et.is_active = true
+       FROM evaluation_criteria ec
+       WHERE ec.template_id = ?
        ORDER BY ec.sort_order`,
-      { replacements: [internshipId], type: QueryTypes.SELECT }
+      { replacements: [templateInfo.id], type: QueryTypes.SELECT }
     );
 
-    if (!template || template.length === 0) {
-      return res.json({ 
-        success: true, 
-        data: null,
-        message: 'No evaluation template found for this internship' 
-      });
-    }
-
-    // Group criteria by template
+    // Build template data structure
     const templateData = {
-      id: template[0].id,
-      internship_id: template[0].internship_id,
-      template_name: template[0].template_name,
-      description: template[0].description,
-      criteria: template.map(row => ({
+      id: templateInfo.id,
+      internship_id: templateInfo.internship_id,
+      template_name: templateInfo.template_name,
+      description: templateInfo.description,
+      criteria: criteria.map(row => ({
         id: row.criteria_id,
         category: row.category,
         criteria_text: row.criteria_text,
@@ -376,27 +524,55 @@ const getTemplates = async (req, res) => {
   }
 };
 
-// Other existing functions remain the same...
+// Get evaluation(s) with scores from evaluation_scores table
 const getEvaluation = async (req, res) => {
   try {
     const internshipId = req.params.internshipId;
     const studentId = req.query.studentId;
     if (!internshipId) return res.status(400).json({ success: false, message: 'internshipId required' });
     
-    let rows;
+    let evaluations;
     if (studentId) {
-      rows = await sequelize.query(
+      evaluations = await sequelize.query(
         `SELECT * FROM evaluations WHERE internship_id = ? AND student_id = ? LIMIT 1`, 
         { replacements: [internshipId, studentId], type: QueryTypes.SELECT }
       );
     } else {
-      rows = await sequelize.query(
+      evaluations = await sequelize.query(
         `SELECT * FROM evaluations WHERE internship_id = ? ORDER BY created_at DESC`, 
         { replacements: [internshipId], type: QueryTypes.SELECT }
       );
     }
+
+    // Get scores for each evaluation
+    const evaluationsWithScores = await Promise.all(
+      evaluations.map(async (eval) => {
+        const scores = await sequelize.query(
+          `SELECT 
+             es.*,
+             ec.category,
+             ec.criteria_text,
+             ec.description AS criteria_description,
+             ec.criteria_type,
+             ec.weight,
+             ec.max_score,
+             ec.is_required,
+             ec.sort_order
+           FROM evaluation_scores es
+           JOIN evaluation_criteria ec ON es.criteria_id = ec.id
+           WHERE es.evaluation_id = ?
+           ORDER BY ec.sort_order`,
+          { replacements: [eval.id], type: QueryTypes.SELECT }
+        );
+
+        return {
+          ...eval,
+          scores: scores || []
+        };
+      })
+    );
     
-    res.json({ success: true, data: rows });
+    res.json({ success: true, data: studentId ? (evaluationsWithScores[0] || null) : evaluationsWithScores });
   } catch (error) {
     console.error('Error fetching evaluation', error);
     res.status(500).json({ success: false, message: 'Failed to fetch evaluation' });
@@ -431,5 +607,6 @@ module.exports = {
   createTemplate,
   getTemplates,
   getEvaluation,
-  getAttestationData
+  getAttestationData,
+  getEvaluationWithScores
 };

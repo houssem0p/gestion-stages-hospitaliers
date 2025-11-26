@@ -10,6 +10,13 @@ const InternshipDetail = () => {
   const [internship, setInternship] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showApplyPanel, setShowApplyPanel] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [newFile, setNewFile] = useState(null);
+  const [newFileType, setNewFileType] = useState('other');
 
   useEffect(() => {
     let mounted = true;
@@ -58,32 +65,77 @@ const InternshipDetail = () => {
     setIsSaved(!isSaved);
   };
 
+  const loadDocuments = async () => {
+    try {
+      const res = await authAPI.get('/students/documents');
+      setDocuments(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to load documents', err);
+      setDocuments([]);
+    }
+  };
+
   const handleApply = () => {
-    // Check student documents and call backend apply endpoint
-    const doApply = async () => {
-      try {
-        // fetch uploaded documents
-        const res = await authAPI.get('/students/documents');
-        const docs = res.data.data || [];
-        const types = docs.map(d => d.document_type);
-        const required = ['cv', 'transcripts'];
-        const missing = required.filter(r => !types.includes(r));
-        if (missing.length > 0) {
-          const ok = window.confirm(`You must upload the following documents before applying: ${missing.join(', ')}. Go to your profile to upload them?`);
-          if (ok) navigate('/profile');
-          return;
-        }
-
-        // submit application
-        await authAPI.post(`/internships/${id}/apply`, { cover_letter: '' });
-        alert('Application submitted successfully.');
-      } catch (err) {
-        console.error('Apply failed', err);
-        alert(err.response?.data?.message || 'Failed to apply');
-      }
+    const openPanel = async () => {
+      await loadDocuments();
+      setShowApplyPanel(true);
     };
+    openPanel();
+  };
 
-    doApply();
+  const handleUploadDoc = async () => {
+    if (!newFile) return alert('Select a file first');
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', newFile);
+      fd.append('document_type', newFileType);
+
+      await authAPI.post('/students/documents', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setNewFile(null);
+      setNewFileType('other');
+      await loadDocuments();
+      alert('Document uploaded');
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const submitApplication = async () => {
+    try {
+      setApplyLoading(true);
+      const types = documents.map(d => d.document_type);
+      const required = ['cv', 'transcripts'];
+      const missing = required.filter(r => !types.includes(r));
+      if (missing.length > 0) {
+        const ok = window.confirm(
+          `Vous devez d'abord téléverser: ${missing.join(', ')}. Aller à votre profil pour les ajouter ?`
+        );
+        if (ok) navigate('/profile');
+        return;
+      }
+
+      if (!coverLetter.trim()) {
+        alert('Veuillez saisir une lettre de motivation');
+        return;
+      }
+
+      await authAPI.post(`/internships/${id}/apply`, { cover_letter: coverLetter.trim() });
+      alert('Candidature envoyée avec succès.');
+      setShowApplyPanel(false);
+      setCoverLetter('');
+    } catch (err) {
+      console.error('Apply failed', err);
+      alert(err.response?.data?.message || 'Failed to apply');
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   const goToHospital = () => {
@@ -153,6 +205,62 @@ const InternshipDetail = () => {
                 Apply
               </button>
             </div>
+
+            {showApplyPanel && (
+              <div className="apply-panel">
+                <h3>Confirmer votre candidature</h3>
+
+                <div className="docs-section">
+                  <h4>Vos documents</h4>
+                  {documents.length === 0 ? (
+                    <p>Aucun document trouvé. Vous devrez en ajouter (CV, relevés de notes).</p>
+                  ) : (
+                    <ul>
+                      {documents.map(doc => (
+                        <li key={doc.id}>
+                          {doc.document_type} — {doc.original_name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="upload-inline">
+                    <select
+                      value={newFileType}
+                      onChange={e => setNewFileType(e.target.value)}
+                    >
+                      <option value="cv">CV</option>
+                      <option value="transcripts">Relevés de notes</option>
+                      <option value="school_certificate">Certificat de scolarité</option>
+                      <option value="other">Autre</option>
+                    </select>
+                    <input type="file" onChange={e => setNewFile(e.target.files[0])} />
+                    <button onClick={handleUploadDoc} disabled={uploading}>
+                      {uploading ? 'Téléversement...' : 'Ajouter le document'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="cover-letter-section">
+                  <h4>Lettre de motivation</h4>
+                  <textarea
+                    value={coverLetter}
+                    onChange={e => setCoverLetter(e.target.value)}
+                    rows={5}
+                    placeholder="Expliquez pourquoi vous postulez à ce stage..."
+                  />
+                </div>
+
+                <div className="apply-actions">
+                  <button onClick={submitApplication} disabled={applyLoading}>
+                    {applyLoading ? 'Envoi...' : 'Envoyer la candidature'}
+                  </button>
+                  <button onClick={() => setShowApplyPanel(false)}>
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="hospital-section">
               <h3>About Hospital</h3>
