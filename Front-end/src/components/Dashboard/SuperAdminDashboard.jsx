@@ -20,6 +20,8 @@ const SuperAdminDashboard = () => {
     status: '',
     search: ''
   });
+  const [hospitals, setHospitals] = useState([]);
+  const [hospitalsLoading, setHospitalsLoading] = useState(false);
 
   const [newUser, setNewUser] = useState({
   email: '',
@@ -52,7 +54,22 @@ const SuperAdminDashboard = () => {
   useEffect(() => {
     fetchUsers();
     fetchDashboardStats();
+    fetchHospitals();
   }, []);
+
+  const fetchHospitals = async () => {
+    try {
+      setHospitalsLoading(true);
+      const response = await authAPI.get('/hospitals');
+      if (response.data.success) {
+        setHospitals(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching hospitals:', error);
+    } finally {
+      setHospitalsLoading(false);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -432,13 +449,17 @@ const SuperAdminDashboard = () => {
         </div>
 
         <div className="form-group full-width">
-          <label>Hospital ID (optional)</label>
-          <input
-            type="number"
-            placeholder="Hospital ID number"
+          <label>Hospital {newUser.role === 'hospital_admin' ? '(required)' : '(optional)'}</label>
+          <select
             value={newUser.hospital_id || ''}
             onChange={(e) => setNewUser({...newUser, hospital_id: e.target.value ? parseInt(e.target.value) : null})}
-          />
+            required={newUser.role === 'hospital_admin'}
+          >
+            <option value="">Select a hospital</option>
+            {hospitals.map(h => (
+              <option key={h.id} value={h.id}>{h.name} ({h.wilaya})</option>
+            ))}
+          </select>
         </div>
 
         {/* Role-specific fields */}

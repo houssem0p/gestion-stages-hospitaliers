@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import './InternshipDetail.css';
+import authAPI from '../../../services/api';
 
 const InternshipDetail = () => {
   const { id } = useParams();
@@ -9,29 +10,54 @@ const InternshipDetail = () => {
   const [internship, setInternship] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showApplyPanel, setShowApplyPanel] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [coverLetter, setCoverLetter] = useState('');
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [newFile, setNewFile] = useState(null);
+  const [newFileType, setNewFileType] = useState('other');
 
   useEffect(() => {
-    // TODO: Fetch internship details from backend using id
-    // For now, mock data
-    const mockData = {
-      id: id,
-      title: 'Internship in Cardiology',
-      hospital: 'General Hospital',
-      hospitalImage: '/assets/hospital1.jpg',
-      speciality: 'Cardiology',
-      startDate: '2024-01-15',
-      endDate: '2024-03-15',
-      address: '123 Medical Street, Cairo, Egypt',
-      description: 'This is a comprehensive internship program in cardiology. You will learn about cardiac care, patient management, diagnostic procedures, and medical treatment strategies.',
-      requirements: 'Bachelor\'s degree in Medicine or related field',
-      responsibilities: 'Patient care, diagnostics, documentation, team collaboration',
-      hospitalDescription: 'General Hospital is one of the leading medical institutions in Egypt, providing world-class healthcare services.',
-      hospitalContact: '+20-100-123-4567'
+    let mounted = true;
+    const fetchInternship = async () => {
+      setLoading(true);
+      try {
+        const res = await authAPI.get(`/internships/${id}`);
+        const data = res.data?.data || null;
+        if (!data) {
+          if (mounted) setInternship(null);
+          return;
+        }
+
+        // Map backend fields to component fields and provide sensible defaults
+        const mapped = {
+          id: data.id,
+          title: data.title || 'Untitled',
+          hospital: data.hospital || 'Unknown Hospital',
+          hospitalImage: data.hospitalImage || '/assets/hospitals/default.jpg',
+          speciality: data.speciality || data.speciality || '',
+          startDate: data.startDate || data.start_date || '',
+          endDate: data.endDate || data.end_date || '',
+          address: data.address || '',
+          description: data.description || '',
+          requirements: data.requirements || '',
+          responsibilities: data.responsibilities || '',
+          hospitalDescription: data.hospitalDescription || '',
+          hospitalContact: data.hospitalContact || ''
+        };
+
+        if (mounted) setInternship(mapped);
+      } catch (err) {
+        console.error('Failed to fetch internship details', err);
+        if (mounted) setInternship(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
-    setTimeout(() => {
-      setInternship(mockData);
-      setLoading(false);
-    }, 500);
+
+    fetchInternship();
+    return () => { mounted = false; };
   }, [id]);
 
   const handleSave = () => {
@@ -39,9 +65,77 @@ const InternshipDetail = () => {
     setIsSaved(!isSaved);
   };
 
+  const loadDocuments = async () => {
+    try {
+      const res = await authAPI.get('/students/documents');
+      setDocuments(res.data.data || []);
+    } catch (err) {
+      console.error('Failed to load documents', err);
+      setDocuments([]);
+    }
+  };
+
   const handleApply = () => {
-    // TODO: Call backend to apply for internship
-    alert('Application submitted! (Mock)');
+    const openPanel = async () => {
+      await loadDocuments();
+      setShowApplyPanel(true);
+    };
+    openPanel();
+  };
+
+  const handleUploadDoc = async () => {
+    if (!newFile) return alert('Select a file first');
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', newFile);
+      fd.append('document_type', newFileType);
+
+      await authAPI.post('/students/documents', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setNewFile(null);
+      setNewFileType('other');
+      await loadDocuments();
+      alert('Document uploaded');
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const submitApplication = async () => {
+    try {
+      setApplyLoading(true);
+      const types = documents.map(d => d.document_type);
+      const required = ['cv', 'transcripts'];
+      const missing = required.filter(r => !types.includes(r));
+      if (missing.length > 0) {
+        const ok = window.confirm(
+          `Vous devez d'abord téléverser: ${missing.join(', ')}. Aller à votre profil pour les ajouter ?`
+        );
+        if (ok) navigate('/profile');
+        return;
+      }
+
+      if (!coverLetter.trim()) {
+        alert('Veuillez saisir une lettre de motivation');
+        return;
+      }
+
+      await authAPI.post(`/internships/${id}/apply`, { cover_letter: coverLetter.trim() });
+      alert('Candidature envoyée avec succès.');
+      setShowApplyPanel(false);
+      setCoverLetter('');
+    } catch (err) {
+      console.error('Apply failed', err);
+      alert(err.response?.data?.message || 'Failed to apply');
+    } finally {
+      setApplyLoading(false);
+    }
   };
 
   const goToHospital = () => {
@@ -111,6 +205,62 @@ const InternshipDetail = () => {
                 Apply
               </button>
             </div>
+
+            {showApplyPanel && (
+              <div className="apply-panel">
+                <h3>Confirmer votre candidature</h3>
+
+                <div className="docs-section">
+                  <h4>Vos documents</h4>
+                  {documents.length === 0 ? (
+                    <p>Aucun document trouvé. Vous devrez en ajouter (CV, relevés de notes).</p>
+                  ) : (
+                    <ul>
+                      {documents.map(doc => (
+                        <li key={doc.id}>
+                          {doc.document_type} — {doc.original_name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="upload-inline">
+                    <select
+                      value={newFileType}
+                      onChange={e => setNewFileType(e.target.value)}
+                    >
+                      <option value="cv">CV</option>
+                      <option value="transcripts">Relevés de notes</option>
+                      <option value="school_certificate">Certificat de scolarité</option>
+                      <option value="other">Autre</option>
+                    </select>
+                    <input type="file" onChange={e => setNewFile(e.target.files[0])} />
+                    <button onClick={handleUploadDoc} disabled={uploading}>
+                      {uploading ? 'Téléversement...' : 'Ajouter le document'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="cover-letter-section">
+                  <h4>Lettre de motivation</h4>
+                  <textarea
+                    value={coverLetter}
+                    onChange={e => setCoverLetter(e.target.value)}
+                    rows={5}
+                    placeholder="Expliquez pourquoi vous postulez à ce stage..."
+                  />
+                </div>
+
+                <div className="apply-actions">
+                  <button onClick={submitApplication} disabled={applyLoading}>
+                    {applyLoading ? 'Envoi...' : 'Envoyer la candidature'}
+                  </button>
+                  <button onClick={() => setShowApplyPanel(false)}>
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="hospital-section">
               <h3>About Hospital</h3>

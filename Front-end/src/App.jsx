@@ -17,7 +17,7 @@ import StudentSavedInternships from './components/Dashboard/Student/SavedInterns
 import StudentInternshipDetail from './components/Dashboard/Student/InternshipDetail';
 
 import DoctorMyTrainees from './components/Dashboard/Doctor/MyTrainees';
-import DoctorEvaluations from './components/Dashboard/Doctor/Evaluations';
+import DoctorEvaluations from './components/Dashboard/Doctor/DoctorEvaluations';
 import DoctorMessages from './components/Dashboard/Doctor/Messages';
 
 import HospitalManageOffers from './components/Dashboard/Hospital/ManageOffers';

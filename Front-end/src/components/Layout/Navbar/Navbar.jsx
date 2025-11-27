@@ -59,22 +59,22 @@ const Navbar = () => {
     doctor: [
       { to: '/dashboard', label: 'Dashboard' },
       { to: '/my-trainees', label: 'Mes stagiaires' },
-      { to: '/evaluations', label: 'Évaluations' },
+      { to: '/doctor/evaluations', label: 'Évaluations' },
       { to: '/messages', label: 'Messagerie' }
     ],
     hospital: [
       { to: '/dashboard', label: 'Dashboard' },
-      { to: '/internships/manage', label: 'Offres de stage' },
-      { to: '/applications/received', label: 'Candidatures reçues' },
+      { to: '/manage-offers', label: 'Offres de stage' },
+      { to: '/received-applications', label: 'Candidatures reçues' },
       { to: '/services', label: 'Services hospitaliers' },
       { to: '/mentors', label: 'Encadrants' },
-      { to: '/reports', label: 'Statistiques & Rapports' },
-      { to: '/messages', label: 'Messagerie' }
+      { to: '/hospital/reports', label: 'Statistiques & Rapports' },
+      { to: '/hospital/messages', label: 'Messagerie' }
     ],
     teacher: [
       { to: '/dashboard', label: 'Dashboard' },
       { to: '/my-students', label: 'Mes étudiants' },
-      { to: '/evaluations', label: 'Évaluations & Compétences' },
+      { to: '/teacher/evaluations', label: 'Évaluations & Compétences' },
       { to: '/attestations', label: 'Attestations' },
       { to: '/messages', label: 'Messagerie' },
       { to: '/availability', label: 'Disponibilité' }
@@ -92,6 +92,11 @@ const Navbar = () => {
       { to: '/messages', label: 'Messagerie' }
     ]
   };
+
+  // Support both `hospital` and `hospital_admin` role values
+  if (role === 'hospital_admin' && !menus['hospital_admin']) {
+    menus['hospital_admin'] = menus['hospital'];
+  }
 
   const activeMenu = menus[role] || menus['admin'] || [];
 

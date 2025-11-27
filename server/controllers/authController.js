@@ -27,6 +27,13 @@ exports.login = async (req, res) => {
     const plainPassword = typeof password === 'string' ? password : String(password || '');
     const isMatch = await bcrypt.compare(plainPassword, user.password);
     if (process.env.NODE_ENV === 'development') console.debug('Auth.login - bcrypt.compare result:', isMatch);
+    if (process.env.NODE_ENV === 'development' && !isMatch) {
+      console.warn('Auth.login - password mismatch! Diagnostics:', {
+        plainPasswordLength: plainPassword.length,
+        storedHashLength: (user.password || '').length,
+        storedHashFormat: /^\$2[aby]\$/.test(user.password) ? 'valid bcrypt' : 'INVALID FORMAT'
+      });
+    }
     if (!isMatch) return res.status(400).json({ success:false, message:'Invalid credentials' });
 
     const token = jwt.sign({ userId:user.id, role:user.role }, process.env.JWT_SECRET, { expiresIn:'1d' });
@@ -35,7 +42,7 @@ exports.login = async (req, res) => {
       success:true,
       message:'Login successful',
       token,
-      user: { id:user.id, email:user.email, role:user.role, first_name:user.first_name, last_name:user.last_name }
+      user: { id:user.id, email:user.email, role:user.role, first_name:user.first_name, last_name:user.last_name, hospital_id: user.hospital_id }
     });
   } catch(err) {
     console.error(err);

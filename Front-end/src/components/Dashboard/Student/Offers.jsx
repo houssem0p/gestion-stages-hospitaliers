@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
 import './Offers.css';
+import authAPI from '../../../services/api';
 
 const Offers = () => {
   const [allInternships, setAllInternships] = useState([]);
@@ -15,6 +16,7 @@ const Offers = () => {
   });
   const [savedInternships, setSavedInternships] = useState([]);
 
+<<<<<<< HEAD
   // Mock data - replace with API call
   const mockInternships = [
     {
@@ -98,6 +100,7 @@ const Offers = () => {
       setFilteredInternships(mockInternships);
       setLoading(false);
     }, 400);
+
   }, []);
 
   useEffect(() => {

@@ -7,6 +7,15 @@ require('dotenv').config();
 const { testConnection } = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const hospitalRoutes = require('./routes/hospitalRoutes');
+const internshipRoutes = require('./routes/internshipRoutes');
+const evaluationRoutes = require('./routes/evaluationRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const evaluationTemplateRoutes = require('./routes/evaluationTemplateRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,9 +34,29 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files (student documents, message attachments, etc.)
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Ensure uploads directories exist
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads');
+const studentDocs = path.join(uploadsDir, 'student_documents');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+if (!fs.existsSync(studentDocs)) fs.mkdirSync(studentDocs);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', userRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/internships', internshipRoutes);
+app.use('/api/evaluations', evaluationRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/evaluation-templates', evaluationTemplateRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/teachers', teacherRoutes);
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -79,4 +108,4 @@ const startServer = async () => {
   }
 };
 
-startServer(); 
+startServer();
