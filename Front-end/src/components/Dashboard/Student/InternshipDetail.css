@@ -287,7 +287,7 @@ section p {
 }
 
 .save-btn::before {
-  content: "💾";
+  content: "";
   margin-right: 8px;
 }
 
@@ -304,7 +304,7 @@ section p {
 }
 
 .save-btn.saved::before {
-  content: "✅";
+  content: "";
 }
 
 .apply-btn {
