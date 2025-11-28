@@ -1,0 +1,588 @@
+
+.internship-detail-page {
+  padding: 20px;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #0d2b4e 0%, #1a3a5f 50%, #2c5aa0 100%);
+  background: linear-gradient(135deg, #b2bfcd 0%, #c7def9 50%, #444343 100%);
+  background: linear-gradient(135deg, #b2bfcd 0%, #444343 100%);
+  background: linear-gradient(135deg,  #8ac5ff 0%,#becad6 50%, #e3e2e2 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 12px 20px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+  text-transform: lowercase;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+}
+
+.back-btn::before {
+  content: "←";
+  font-size: 1.1em;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  color: #e8f4f8;
+}
+
+/* Header Section - Enhanced */
+.detail-header {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+}
+
+.detail-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4fc3a1, #2c5aa0, #4fc3a1);
+}
+
+.detail-image {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+  background: linear-gradient(135deg, #2c5aa0 0%, #1a3a5f 100%);
+  position: relative;
+}
+
+.detail-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(44, 90, 160, 0.9) 0%, rgba(26, 58, 95, 0.9) 100%);
+}
+
+.detail-header-info {
+  padding: 35px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.detail-header-info h1 {
+  color: rgb(0, 0, 0);
+  font-size: 2.2rem;
+  margin: 0 0 15px 0;
+  line-height: 1.3;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-header-info .hospital-name {
+  color: #2aba8f;
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-header-info .hospital-name::before {
+  content: "🏥";
+  font-size: 1.1em;
+}
+
+.detail-header-info .speciality {
+  color: #000000;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 10px;
+  width: fit-content;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.detail-header-info .date-range {
+  color: #000000;
+  font-size: 1rem;
+  margin: 10px 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-header-info .date-range::before {
+  content: "📅";
+  font-size: 0.9em;
+}
+
+.detail-header-info .address {
+  color: #000000;
+  font-size: 1rem;
+  margin: 10px 0 0 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-header-info .address::before {
+  content: "📍";
+  font-size: 0.9em;
+}
+
+/* Content Layout - Enhanced */
+.detail-content {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.main-section {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 35px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+section {
+  margin-bottom: 35px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+section h2 {
+  color: rgb(0, 0, 0);
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #4fc3a1;
+  padding-bottom: 12px;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+section p {
+  line-height: 1.7;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Requirements list styling */
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.requirements-list li {
+  color: #000000;
+  padding: 8px 0;
+  padding-left: 25px;
+  position: relative;
+  font-weight: 500;
+}
+
+.requirements-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #4fc3a1;
+  font-weight: bold;
+}
+
+/* Action Sidebar - Enhanced */
+.action-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.action-buttons {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.save-btn,
+.apply-btn {
+  padding: 16px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-transform: lowercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.save-btn {
+  background: rgba(3, 95, 162, 0.772);
+  color: rgb(255, 255, 255);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.save-btn::before {
+  content: "";
+  margin-right: 8px;
+}
+
+.save-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.save-btn.saved {
+  background: #4fc3a1;
+  color: rgb(0, 0, 0);
+  animation: pulse 0.6s ease-in-out;
+}
+
+.save-btn.saved::before {
+  content: "";
+}
+
+.apply-btn {
+  background: linear-gradient(135deg, #4fc3a1 0%, #3da88a 100%);
+  color: white;
+  position: relative;
+  box-shadow: 0 5px 20px rgba(79, 195, 161, 0.3);
+}
+
+.apply-btn::before {
+  content: "";
+  margin-right: 8px;
+}
+
+.apply-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.apply-btn:hover::after {
+  left: 100%;
+}
+
+.apply-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(79, 195, 161, 0.4);
+}
+
+.apply-btn:active {
+  transform: translateY(-1px);
+}
+
+/* Hospital Section - Enhanced */
+.hospital-section {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 25px;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.hospital-section h3 {
+  color: rgb(0, 0, 0);
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #4fc3a1;
+  padding-bottom: 12px;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.hospital-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #2c5aa0 0%, #1a3a5f 100%);
+  position: relative;
+}
+
+.hospital-image::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(44, 90, 160, 0.9) 0%, rgba(26, 58, 95, 0.9) 100%);
+  border-radius: 12px;
+}
+
+.hospital-title {
+  color: rgb(0, 0, 0);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0 0 15px 0;
+  text-transform: lowercase;
+}
+
+.hospital-description {
+  color: #000000;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.contact {
+  color: #000000;
+  font-size: 0.9rem;
+  margin: 15px 0 20px 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact::before {
+  content: "📞";
+  font-size: 0.9em;
+}
+
+.hospital-detail-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #4fc3a1 0%, #3da88a 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  text-transform: lowercase;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(79, 195, 161, 0.3);
+}
+
+.hospital-detail-btn::before {
+  content: "🏥";
+  margin-right: 8px;
+}
+
+.hospital-detail-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 195, 161, 0.4);
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-value {
+  color: #4fc3a1;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: block;
+}
+
+.stat-label {
+  color: #000000;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+/* Logo positioning */
+.detail-logo {
+  position: absolute;
+  bottom: 30px;
+  left: 40px;
+  z-index: 10;
+}
+
+.detail-logo .clinic-logo {
+  width: 280px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .detail-content {
+    grid-template-columns: 1fr 340px;
+  }
+  
+  .detail-image {
+    width: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .detail-content {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .action-sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-header {
+    flex-direction: column;
+  }
+
+  .detail-image {
+    width: 100%;
+    height: 220px;
+  }
+
+  .detail-header-info {
+    padding: 25px;
+  }
+
+  .detail-header-info h1 {
+    font-size: 1.8rem;
+  }
+
+  .main-section,
+  .action-buttons,
+  .hospital-section {
+    padding: 20px;
+  }
+
+  section h2 {
+    font-size: 1.4rem;
+  }
+  
+  .quick-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-logo {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    text-align: center;
+    margin: 20px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .internship-detail-page {
+    padding: 15px;
+  }
+  
+  .detail-header-info h1 {
+    font-size: 1.5rem;
+  }
+  
+  .main-section,
+  .action-buttons,
+  .hospital-section {
+    padding: 15px;
+  }
+  
+  .save-btn,
+  .apply-btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Loading state */
+.detail-header.loading,
+.main-section.loading {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

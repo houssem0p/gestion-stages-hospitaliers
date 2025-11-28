@@ -1,0 +1,224 @@
+/* ActorSection.css - Reduced Feature Items */
+
+.actor-section {
+    padding: 6rem 0;
+    position: relative;
+    overflow: hidden;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+/* Simplified Gradient Backgrounds */
+.actor-section:nth-child(odd) {
+    background: linear-gradient(135deg, #1a3a5f 0%, #2c5aa0 100%);
+}
+
+.actor-section:nth-child(even) {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1a3a5f 100%);
+}
+
+.actor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* Enhanced Image Effect */
+.actor-image {
+    position: relative;
+    perspective: 800px;
+}
+
+.actor-image::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    background: linear-gradient(45deg, #4fc3a1, #2c5aa0);
+    border-radius: 20px;
+    opacity: 0.2;
+    filter: blur(15px);
+    z-index: -1;
+}
+
+.actor-image img {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 60px rgba(79, 195, 161, 0.2);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.actor-section.left .actor-image img {
+    transform: rotateY(5deg);
+}
+
+.actor-section.right .actor-image img {
+    transform: rotateY(-5deg);
+}
+
+.actor-image:hover img {
+    transform: rotateY(0deg) scale(1.03);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 80px rgba(79, 195, 161, 0.3);
+}
+
+.actor-content {
+    position: relative;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+
+.actor-role {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 2.5rem;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #ffffff 0%, #4fc3a1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.actor-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.8rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 3px solid #4fc3a1;
+    transition: background-color 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.feature-icon {
+    color: #4fc3a1;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.actor-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(79, 195, 161, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(44, 90, 160, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 1024px) {
+    .actor-container {
+        gap: 3rem;
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .actor-image {
+        order: -1;
+    }
+    
+    .actor-image img,
+    .actor-section.left .actor-image img,
+    .actor-section.right .actor-image img {
+        transform: none;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+    
+    .actor-role {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .actor-section {
+        padding: 4rem 0;
+        min-height: auto;
+    }
+    
+    .actor-container {
+        padding: 0 1.5rem;
+        gap: 2.5rem;
+    }
+    
+    .actor-content {
+        padding: 2rem;
+    }
+    
+    .actor-role {
+        font-size: 2.2rem;
+    }
+    
+    .feature-item {
+        padding: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .actor-container {
+        padding: 0 1rem;
+    }
+    
+    .actor-role {
+        font-size: 1.8rem;
+    }
+    
+    .actor-content {
+        padding: 1.5rem;
+    }
+    
+    .feature-item {
+        padding: 0.7rem;
+        gap: 0.8rem;
+    }
+}
+
+/* Scroll Animations */
+.actor-section {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s ease;
+}
+
+.actor-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
