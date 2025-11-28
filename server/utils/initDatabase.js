@@ -18,11 +18,21 @@ const initDatabase = async () => {
     console.log('✅ Connected to MySQL server');
 
     // Create database if it doesn't exist
-    await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'internship_db'}`);
+    const dbName = process.env.DB_NAME || 'internship_db';
+    await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
     console.log('✅ Database created/verified');
 
-    // Switch to the database
-    await connection.execute(`USE ${process.env.DB_NAME || 'internship_db'}`);
+    // Close the initial connection and create a new one with the database selected
+    await connection.end();
+    
+    // Create new connection with database selected
+    connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 3306,
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASS || '',
+      database: dbName
+    });
     console.log('✅ Using database');
 
     // Create users table with correct structure
@@ -197,6 +207,22 @@ const initDatabase = async () => {
       )
     `);
     console.log('✅ Message attachments table created/verified');
+
+    // Create hospitals table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS hospitals (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(255) NOT NULL,
+        address VARCHAR(255),
+        type VARCHAR(100),
+        wilaya VARCHAR(100),
+        capacity INT,
+        email VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Hospitals table created/verified');
 
     // Create internship_participants table - links students, doctors, teachers, hospitals to internships
     await connection.execute(`

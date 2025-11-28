@@ -711,5 +711,6 @@ module.exports = {
   getTemplates,
   getEvaluation,
   getAttestationData,
-  getEvaluationWithScores
+  getEvaluationWithScores,
+  getTeacherInternships
 };

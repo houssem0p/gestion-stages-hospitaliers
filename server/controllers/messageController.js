@@ -362,12 +362,14 @@ const getRecipients = async (req, res) => {
       const hospitalId = req.user?.hospital_id;
       if (hospitalId) {
         // Get hospital name first
-        const [hospital] = await sequelize.query(
+        const hospitalResult = await sequelize.query(
           `SELECT name FROM hospitals WHERE id = ? LIMIT 1`,
           { replacements: [hospitalId], type: QueryTypes.SELECT }
         );
 
-        if (hospital) {
+        const hospital = hospitalResult && hospitalResult.length > 0 ? hospitalResult[0] : null;
+
+        if (hospital && hospital.name) {
           const query = `
             SELECT DISTINCT
               u.id,
@@ -400,7 +402,11 @@ const getRecipients = async (req, res) => {
     res.json({ success: true, data: recipients || [] });
   } catch (error) {
     console.error('Error fetching recipients', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch recipients' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch recipients',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
