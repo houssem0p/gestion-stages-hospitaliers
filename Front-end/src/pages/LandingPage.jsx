@@ -10,7 +10,7 @@ const LandingPage = () => {
     {
       id: 1,
       role: 'Étudiant',
-      image: '/assets/student.jpg',
+      image: '../assets/39e82acc7d83121101fd8b44a3a843277ab9e11b.png',
       description: [
         'Complète son profil et téléverse ses pièces justificatives',
         'Consulte les offres de stage disponibles',
