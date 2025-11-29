@@ -1,0 +1,489 @@
+/* Offers.module.css - Updated to match JSX class names */
+
+/* Main container */
+.offers-page {
+  padding: 20px;
+  min-height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #0d2b4e 0%, #1a3a5f 50%, #2c5aa0 100%);
+}
+
+/* Page header */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.detail-title {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  color: #e8f4f8;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+/* Main layout */
+.offers-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Filters sidebar */
+.filters-sidebar {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 25px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.hospital-heading {
+  color: white;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.reset-filters-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.reset-filters-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.reset-filters-btn.large {
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+/* Filter groups */
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group label {
+  display: block;
+  color: white;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.filter-input,
+.filter-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.filter-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.filter-select option {
+  background: #1a3a5f;
+  color: white;
+}
+
+/* Results section */
+.offers-content {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 25px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.results-count {
+  color: white;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.results-count strong {
+  color: #4fc3a1;
+  margin-right: 5px;
+}
+
+.sort-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+/* Internships list */
+.internships-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.internships-list.compact {
+  gap: 15px;
+}
+
+/* Internship card */
+.internship-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  overflow: hidden;
+  display: flex;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.internship-card.compact {
+  border-radius: 12px;
+}
+
+.internship-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Card image */
+.card-image {
+  width: 200px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.card-image.compact {
+  width: 150px;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-speciality-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: linear-gradient(135deg, #4fc3a1, #3da88a);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.card-speciality-badge.compact {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+}
+
+/* Card content */
+.card-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-content.compact {
+  padding: 15px;
+}
+
+.card-header {
+  margin-bottom: 10px;
+}
+
+.card-title {
+  color: white;
+  font-size: 1.3rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.card-title.compact {
+  font-size: 1.1rem;
+}
+
+.card-hospital {
+  color: #4fc3a1;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+}
+
+.card-hospital.compact {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+/* Card details */
+.card-details {
+  margin-bottom: 15px;
+}
+
+.detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e8f4f8;
+  font-size: 0.9rem;
+}
+
+.detail-item.compact {
+  font-size: 0.85rem;
+}
+
+.detail-icon {
+  font-size: 1rem;
+}
+
+.card-description {
+  color: #e8f4f8;
+  line-height: 1.5;
+  margin: 0 0 15px 0;
+  flex: 1;
+}
+
+.card-description.compact {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+/* Card actions */
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.apply-btn {
+  background: linear-gradient(135deg, #4fc3a1, #3da88a);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.apply-btn.compact {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+.apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(79, 195, 161, 0.3);
+}
+
+/* Save button */
+.save-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.save-btn.compact {
+  width: 35px;
+  height: 35px;
+  font-size: 1rem;
+}
+
+.save-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.save-btn.saved {
+  background: #4fc3a1;
+  animation: pulse 0.6s ease;
+}
+
+/* No results state */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: white;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.no-results h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  opacity: 0.8;
+  margin-bottom: 25px;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  color: white;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid #4fc3a1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .offers-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .filters-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .offers-page {
+    padding: 15px;
+  }
+  
+  .detail-title {
+    font-size: 2rem;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .internship-card {
+    flex-direction: column;
+  }
+  
+  .card-image {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .card-image.compact {
+    width: 100%;
+    height: 150px;
+  }
+  
+  .detail-row {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-sidebar,
+  .offers-content {
+    padding: 20px;
+  }
+  
+  .detail-title {
+    font-size: 1.7rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .card-content {
+    padding: 15px;
+  }
+  
+  .card-title {
+    font-size: 1.1rem;
+  }
+}

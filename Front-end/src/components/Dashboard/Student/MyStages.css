@@ -1,0 +1,79 @@
+.my-stages-page {
+  padding: 2rem;
+}
+
+.stages-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.stage-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stage-header h3 {
+  margin: 0;
+  color: #0b2e52;
+}
+
+.status-active {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.stage-details {
+  margin-bottom: 1rem;
+}
+
+.stage-details p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.stage-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.view-btn, .evaluations-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.view-btn {
+  background-color: #0b2e52;
+}
+
+.view-btn:hover {
+  background-color: #0a4a7a;
+}
+
+.evaluations-btn {
+  background-color: #28a745;
+}
+
+.evaluations-btn:hover {
+  background-color: #218838;
+}
+
+

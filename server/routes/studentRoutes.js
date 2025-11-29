@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const { verifyToken } = require('../middleware/authMiddleware');
 const studentController = require('../controllers/studentController');
+const applicationsController = require('../controllers/applicationsController');
 
 // Setup multer storage
 const storage = multer.diskStorage({
@@ -35,5 +36,13 @@ router.get('/profile', verifyToken, studentController.getStudentProfileData);
 // Student profile and internships (used by frontend)
 router.get('/:studentId/profile', studentController.getStudentProfile);
 router.get('/:studentId/internships', studentController.getStudentInternships);
+
+// Saved internships
+router.get('/saved-internships', verifyToken, studentController.getSavedInternships);
+router.post('/saved-internships', verifyToken, studentController.saveInternship);
+router.delete('/saved-internships/:id', verifyToken, studentController.removeSavedInternship);
+
+// Student applications
+router.get('/applications', verifyToken, applicationsController.getStudentApplications);
 
 module.exports = router;

@@ -1,0 +1,85 @@
+.my-students-page {
+  padding: 2rem;
+}
+
+.students-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.student-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.student-header h3 {
+  margin: 0 0 1rem 0;
+  color: #0b2e52;
+}
+
+.student-details {
+  margin-bottom: 1rem;
+}
+
+.student-details p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.student-internships {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.internship-item {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.internship-item p {
+  margin: 0.25rem 0;
+}
+
+.date-info, .doctor-info {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.student-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.evaluate-btn, .attestation-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.evaluate-btn {
+  background-color: #007bff;
+}
+
+.evaluate-btn:hover {
+  background-color: #0056b3;
+}
+
+.attestation-btn {
+  background-color: #28a745;
+}
+
+.attestation-btn:hover {
+  background-color: #218838;
+}
+
+

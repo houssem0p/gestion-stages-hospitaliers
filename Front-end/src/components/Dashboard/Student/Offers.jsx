@@ -16,91 +16,49 @@ const Offers = () => {
   });
   const [savedInternships, setSavedInternships] = useState([]);
 
-<<<<<<< HEAD
-  // Mock data - replace with API call
-  const mockInternships = [
-    {
-      id: 1,
-      title: 'Cardiology Internship',
-      hospital: 'General Hospital',
-      hospitalImage: '/mnt/data/f67df839-cfe4-41c9-aea2-86dbaf0f68d4.png',
-      speciality: 'Cardiology',
-      startDate: '2024-01-15',
-      address: 'Cairo, Egypt',
-      description: 'Learn about cardiac care and patient management.',
-      duration: '6 months',
-      salary: '$1,200/month'
-    },
-    {
-      id: 2,
-      title: 'Neurology Internship',
-      hospital: 'Saint Johns Hospital',
-      hospitalImage: '/assets/hospital2.jpg',
-      speciality: 'Neurology',
-      startDate: '2024-02-01',
-      address: 'Alexandria, Egypt',
-      description: 'Explore neurological disorders and treatments.',
-      duration: '12 months',
-      salary: '$1,500/month'
-    },
-    {
-      id: 3,
-      title: 'Pediatrics Internship',
-      hospital: "Children's Medical Center",
-      hospitalImage: '/assets/hospital3.jpg',
-      speciality: 'Pediatrics',
-      startDate: '2024-01-20',
-      address: 'Giza, Egypt',
-      description: 'Work with pediatric patients and develop clinical skills.',
-      duration: '8 months',
-      salary: '$1,300/month'
-    },
-    {
-      id: 4,
-      title: 'Surgery Internship',
-      hospital: 'Trauma Center',
-      hospitalImage: '/assets/hospital4.jpg',
-      speciality: 'Surgery',
-      startDate: '2024-03-01',
-      address: 'Cairo, Egypt',
-      description: 'Gain surgical experience in emergency and elective cases.',
-      duration: '12 months',
-      salary: '$1,800/month'
-    },
-    {
-      id: 5,
-      title: 'Oncology Internship',
-      hospital: 'Cancer Research Institute',
-      hospitalImage: '/assets/hospital5.jpg',
-      speciality: 'Oncology',
-      startDate: '2024-02-15',
-      address: 'Helwan, Egypt',
-      description: 'Learn about cancer treatment and patient care.',
-      duration: '6 months',
-      salary: '$1,400/month'
-    },
-    {
-      id: 6,
-      title: 'Emergency Medicine',
-      hospital: 'General Hospital',
-      hospitalImage: '/assets/hospital1.jpg',
-      speciality: 'Emergency Medicine',
-      startDate: '2024-01-25',
-      address: 'Cairo, Egypt',
-      description: 'Handle emergency cases and acute patient situations.',
-      duration: '10 months',
-      salary: '$1,600/month'
-    }
-  ];
-
+  // Fetch internships from API
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      setAllInternships(mockInternships);
-      setFilteredInternships(mockInternships);
-      setLoading(false);
-    }, 400);
+    const fetchInternships = async () => {
+      try {
+        setLoading(true);
+        const response = await authAPI.get('/internships');
+        if (response.data.success) {
+          const internships = response.data.data || [];
+          // Transform data to match frontend format
+          const formattedInternships = internships.map(internship => ({
+            ...internship,
+            hospitalImage: '/assets/hospital1.jpg', // Default image
+            duration: internship.startDate && internship.endDate 
+              ? `${Math.ceil((new Date(internship.endDate) - new Date(internship.startDate)) / (1000 * 60 * 60 * 24 * 30))} months`
+              : 'N/A',
+            salary: 'Non spécifié' // Default if not in database
+          }));
+          setAllInternships(formattedInternships);
+          setFilteredInternships(formattedInternships);
+        }
+      } catch (error) {
+        console.error('Failed to fetch internships:', error);
+        alert('Failed to load internships: ' + (error.response?.data?.message || error.message));
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    const fetchSavedInternships = async () => {
+      try {
+        const response = await authAPI.get('/students/saved-internships');
+        if (response.data.success) {
+          const saved = response.data.data || [];
+          setSavedInternships(saved.map(si => si.id));
+        }
+      } catch (error) {
+        console.error('Failed to fetch saved internships:', error);
+        // Don't show alert for this, just log
+      }
+    };
+
+    fetchInternships();
+    fetchSavedInternships();
   }, []);
 
   useEffect(() => {
@@ -131,12 +89,24 @@ const Offers = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleSave = (id, e) => {
+  const toggleSave = async (id, e) => {
     e.preventDefault();
     e.stopPropagation();
-    setSavedInternships(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+    try {
+      const isSaved = savedInternships.includes(id);
+      if (isSaved) {
+        // Remove from saved
+        await authAPI.delete(`/students/saved-internships/${id}`);
+        setSavedInternships(prev => prev.filter(i => i !== id));
+      } else {
+        // Add to saved
+        await authAPI.post('/students/saved-internships', { internship_id: id });
+        setSavedInternships(prev => [...prev, id]);
+      }
+    } catch (error) {
+      console.error('Failed to toggle save:', error);
+      alert('Failed to update saved internships');
+    }
   };
 
   const formatDate = (dateString) => {

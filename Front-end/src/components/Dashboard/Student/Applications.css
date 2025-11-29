@@ -1,0 +1,96 @@
+.applications-page {
+  padding: 2rem;
+}
+
+.applications-list {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.application-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.application-header h3 {
+  margin: 0;
+  color: #0b2e52;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-green {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-red {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-orange {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-gray {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.application-details {
+  margin-bottom: 1rem;
+}
+
+.application-details p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.cover-letter {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.cover-letter p {
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.application-actions {
+  margin-top: 1rem;
+}
+
+.view-btn {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background-color: #0b2e52;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.view-btn:hover {
+  background-color: #0a4a7a;
+}
+
+

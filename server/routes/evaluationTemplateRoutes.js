@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const evaluationTemplateController = require('../controllers/evaluationTemplateController');
+const { verifyToken } = require('../middleware/authMiddleware');
 
-// Create a new template
-router.post('/', evaluationTemplateController.createTemplate);
+// Create a new template (authenticated)
+router.post('/', verifyToken, evaluationTemplateController.createTemplate);
 
-// List templates
-router.get('/', evaluationTemplateController.getTemplates);
+// List templates (authenticated)
+router.get('/', verifyToken, evaluationTemplateController.getTemplates);
 
 module.exports = router;

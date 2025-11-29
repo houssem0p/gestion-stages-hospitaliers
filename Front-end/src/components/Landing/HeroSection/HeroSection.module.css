@@ -1,0 +1,331 @@
+/* HeroSection.module.css (Creative & Dynamic Redesign) */
+
+/* ================================ */
+/* 1. BASE SECTION & BACKGROUND */
+/* ================================ */
+
+/* 🌟 CREATIVE EFFECT 1: Animated Background Overlay (Subtle Pulse) */
+.hero-section {
+    min-height: 90vh; /* Made slightly taller */
+    background-color: #0d2b4e; /* Base dark color */
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background gradient layer (using a pseudo-element for animation) */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, #1a3a5f 0%, #0d2b4e 50%, #2c5aa0 100%);
+    opacity: 0.7;
+    z-index: 0;
+    animation: subtle-pulse 60s ease-in-out infinite alternate; /* Slow, breathing animation */
+}
+
+@keyframes subtle-pulse {
+    0% { transform: scale(1.0); }
+    100% { transform: scale(1.1); }
+}
+
+/* --- NEW ECG STYLES --- */
+.ecg-container {
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: 0;
+    width: 100%;
+    height: 300px;
+    transform: translateY(-50%);
+    z-index: 1; /* Below content, above background pulse */
+    opacity: 0.35; /* Subtle background opacity */
+}
+
+.ecg-container svg {
+    width: 100%;
+    height: 100%;
+}
+
+.heartbeat {
+    /* Accent color: Soft Pink/Red for the pulse effect */
+    stroke: #ff7f7f; 
+    stroke-width: 3.5;
+    fill: none;
+    filter: drop-shadow(0 0 12px #ff7f7f);
+    stroke-dasharray: 1000;
+    /* Custom timing for a less mechanical pulse */
+    animation: draw 4s cubic-bezier(0.3, 0.7, 0.7, 0.3) infinite; 
+}
+
+@keyframes draw {
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
+}
+/* ------------------------ */
+
+.hero-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 3; /* Ensure content is on top */
+    text-align: center;
+}
+.hero-text {} /* Kept for structure */
+
+
+/* ================================ */
+/* 2. TYPOGRAPHY & TEXT */
+/* ================================ */
+
+.hero-title {
+    font-size: 4rem; /* Bolder font size */
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+}
+
+.hero-title span {
+    color: #4fc3a1;
+    position: relative;
+}
+
+/* Redesigned underline accent */
+.hero-title span::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 5px; /* Thicker accent */
+    background: #4fc3a1;
+    border-radius: 5px;
+}
+
+.hero-description {
+    font-size: 1.4rem;
+    line-height: 1.7;
+    color: #c4d4e3;
+    margin-bottom: 3.5rem;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ================================ */
+/* 3. BUTTONS (CALL TO ACTION) */
+/* ================================ */
+
+.hero-buttons {
+    display: flex;
+    gap: 2rem; /* Increased gap */
+    justify-content: center;
+    margin-bottom: 5rem;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 1.2rem 3rem;
+    border-radius: 50px; /* Pill-shaped buttons */
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.15rem;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    z-index: 4; /* Ensure buttons are highest layer */
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Shimmer Effect */
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease-in-out;
+    z-index: 1; 
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+/* PRIMARY BUTTON: Dual-Glow Effect */
+.btn-primary {
+    background: #4fc3a1;
+    color: #0d2b4e; /* Dark text on bright button for contrast */
+    box-shadow: 0 10px 30px rgba(79, 195, 161, 0.5), 
+                0 0 0 0 rgba(79, 195, 161, 0.2);
+    /* Internal arrow styling */
+}
+
+.btn-arrow {
+    font-size: 1.3rem;
+    margin-left: 10px;
+    transform: translateX(0);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #3da88a;
+    transform: translateY(-5px); 
+    box-shadow: 0 15px 40px rgba(79, 195, 161, 0.7),
+                0 0 0 5px rgba(79, 195, 161, 0.2); 
+}
+.btn-primary:hover .btn-arrow {
+    transform: translateX(5px); /* Arrow slides slightly on hover */
+}
+
+
+/* SECONDARY BUTTON: Border-Glow Effect */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border-color: #2c5aa0;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #4fc3a1;
+    transform: translateY(-5px);
+    box-shadow: 0 0 30px rgba(79, 195, 161, 0.4), 
+                0 8px 30px rgba(0, 0, 0, 0.6); 
+}
+
+
+/* ================================ */
+/* 4. FEATURE GRID (STATS) */
+/* ================================ */
+
+.hero-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Creative Feature Box Styling (Depth Rings) */
+.feature {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: visible;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    z-index: 3;
+}
+
+.feature::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 2px rgba(79, 195, 161, 0.0), 
+                inset 0 0 0 6px rgba(44, 90, 160, 0.0);
+    transition: all 0.4s ease;
+}
+
+.feature:hover {
+    transform: translateY(-10px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(79, 195, 161, 0.4);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+.feature:hover::before {
+    box-shadow: inset 0 0 0 2px rgba(79, 195, 161, 0.5), 
+                inset 0 0 0 6px rgba(44, 90, 160, 0.3);
+}
+
+.feature-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #4fc3a1;
+    display: block;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 15px #4fc3a150;
+}
+
+.feature-label {
+    font-size: 1rem;
+    color: #e8f4f8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+
+/* ================================ */
+/* 5. RESPONSIVE DESIGN */
+/* ================================ */
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: auto;
+        padding: 4rem 0;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+    
+    .ecg-container {
+        height: 200px; 
+    }
+
+    .hero-description {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 1.1rem 2rem;
+    }
+
+    .hero-features {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+
+    .feature-number {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-title span::after {
+        width: 80px;
+    }
+}

@@ -252,6 +252,59 @@ const initDatabase = async () => {
     `);
     console.log('✅ Internship participants table created/verified');
 
+    // Create evaluation_templates table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS evaluation_templates (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        internship_id INT NOT NULL,
+        template_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        created_by INT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (internship_id) REFERENCES offers(id) ON DELETE CASCADE,
+        INDEX idx_internship (internship_id)
+      )
+    `);
+    console.log('✅ Evaluation templates table created/verified');
+
+    // Create evaluation_criteria table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS evaluation_criteria (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        template_id INT NOT NULL,
+        category VARCHAR(100),
+        criteria_text VARCHAR(500) NOT NULL,
+        description TEXT,
+        criteria_type ENUM('scale', 'boolean', 'text') DEFAULT 'scale',
+        weight DECIMAL(5,2) DEFAULT 1.0,
+        max_score INT DEFAULT 5,
+        sort_order INT DEFAULT 0,
+        is_required BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (template_id) REFERENCES evaluation_templates(id) ON DELETE CASCADE,
+        INDEX idx_template (template_id)
+      )
+    `);
+    console.log('✅ Evaluation criteria table created/verified');
+
+    // Create saved_internships table (for students to bookmark internships)
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS saved_internships (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        student_id INT NOT NULL,
+        internship_id INT NOT NULL,
+        saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (internship_id) REFERENCES offers(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_saved (student_id, internship_id),
+        INDEX idx_student (student_id),
+        INDEX idx_internship (internship_id)
+      )
+    `);
+    console.log('✅ Saved internships table created/verified');
+
     console.log('🎉 Database initialization completed!');
 
   } catch (error) {

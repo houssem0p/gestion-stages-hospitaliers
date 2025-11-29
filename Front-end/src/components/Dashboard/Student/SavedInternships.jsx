@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
+import authAPI from '../../../services/api';
 import './SavedInternships.css';
 
 const SavedInternships = () => {
@@ -8,24 +9,28 @@ const SavedInternships = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch saved internships from backend
-    // For now, mock data
-    const mockData = [
-      {
-        id: 1,
-        title: 'Internship in Cardiology',
-        hospital: 'General Hospital',
-        hospitalImage: '/assets/hospital1.jpg',
-        speciality: 'Cardiology',
-        startDate: '2024-01-15',
-        address: 'Cairo, Egypt',
-        description: 'Learn about cardiac care and patient management.'
+    const fetchSavedInternships = async () => {
+      try {
+        setLoading(true);
+        const response = await authAPI.get('/students/saved-internships');
+        if (response.data.success) {
+          const internships = response.data.data || [];
+          // Format data for display
+          const formatted = internships.map(internship => ({
+            ...internship,
+            hospitalImage: '/assets/hospital1.jpg' // Default image
+          }));
+          setSavedInternships(formatted);
+        }
+      } catch (error) {
+        console.error('Failed to fetch saved internships:', error);
+        alert('Failed to load saved internships: ' + (error.response?.data?.message || error.message));
+      } finally {
+        setLoading(false);
       }
-    ];
-    setTimeout(() => {
-      setSavedInternships(mockData);
-      setLoading(false);
-    }, 500);
+    };
+
+    fetchSavedInternships();
   }, []);
 
   if (loading) {

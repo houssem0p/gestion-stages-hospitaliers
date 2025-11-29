@@ -250,4 +250,80 @@ const getStudentDocumentsByStudentId = async (req, res) => {
   }
 };
 
-module.exports = { uploadDocument, getStudentDocuments, getStudentProfile, getStudentInternships, saveStudentProfile, getStudentProfileData, getStudentDocumentsByStudentId };
+// Get saved internships for current student
+const getSavedInternships = async (req, res) => {
+  try {
+    const studentId = req.user?.userId || req.user?.id;
+    if (!studentId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    const saved = await sequelize.query(
+      `SELECT o.*, si.saved_at
+       FROM saved_internships si
+       JOIN offers o ON si.internship_id = o.id
+       WHERE si.student_id = ?
+       ORDER BY si.saved_at DESC`,
+      { replacements: [studentId], type: QueryTypes.SELECT }
+    );
+
+    res.json({ success: true, data: saved || [] });
+  } catch (error) {
+    console.error('Error fetching saved internships', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch saved internships' });
+  }
+};
+
+// Save an internship
+const saveInternship = async (req, res) => {
+  try {
+    const studentId = req.user?.userId || req.user?.id;
+    const { internship_id } = req.body;
+    
+    if (!studentId) return res.status(401).json({ success: false, message: 'Authentication required' });
+    if (!internship_id) return res.status(400).json({ success: false, message: 'internship_id is required' });
+
+    await sequelize.query(
+      `INSERT INTO saved_internships (student_id, internship_id) 
+       VALUES (?, ?) 
+       ON DUPLICATE KEY UPDATE saved_at = CURRENT_TIMESTAMP`,
+      { replacements: [studentId, internship_id] }
+    );
+
+    res.json({ success: true, message: 'Internship saved' });
+  } catch (error) {
+    console.error('Error saving internship', error);
+    res.status(500).json({ success: false, message: 'Failed to save internship' });
+  }
+};
+
+// Remove saved internship
+const removeSavedInternship = async (req, res) => {
+  try {
+    const studentId = req.user?.userId || req.user?.id;
+    const internshipId = req.params.id;
+    
+    if (!studentId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    await sequelize.query(
+      `DELETE FROM saved_internships WHERE student_id = ? AND internship_id = ?`,
+      { replacements: [studentId, internshipId] }
+    );
+
+    res.json({ success: true, message: 'Internship removed from saved' });
+  } catch (error) {
+    console.error('Error removing saved internship', error);
+    res.status(500).json({ success: false, message: 'Failed to remove saved internship' });
+  }
+};
+
+module.exports = { 
+  uploadDocument, 
+  getStudentDocuments, 
+  getStudentProfile, 
+  getStudentInternships, 
+  saveStudentProfile, 
+  getStudentProfileData, 
+  getStudentDocumentsByStudentId,
+  getSavedInternships,
+  saveInternship,
+  removeSavedInternship
+};

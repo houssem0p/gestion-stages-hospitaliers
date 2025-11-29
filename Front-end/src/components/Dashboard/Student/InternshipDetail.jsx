@@ -60,10 +60,36 @@ const InternshipDetail = () => {
     return () => { mounted = false; };
   }, [id]);
 
-  const handleSave = () => {
-    // TODO: Call backend to save internship
-    setIsSaved(!isSaved);
+  const handleSave = async () => {
+    try {
+      if (isSaved) {
+        await authAPI.delete(`/students/saved-internships/${id}`);
+        setIsSaved(false);
+      } else {
+        await authAPI.post('/students/saved-internships', { internship_id: id });
+        setIsSaved(true);
+      }
+    } catch (error) {
+      console.error('Failed to toggle save:', error);
+      alert('Failed to update saved status');
+    }
   };
+
+  // Check if internship is saved on load
+  useEffect(() => {
+    const checkSaved = async () => {
+      try {
+        const response = await authAPI.get('/students/saved-internships');
+        if (response.data.success) {
+          const saved = response.data.data || [];
+          setIsSaved(saved.some(si => si.id === parseInt(id)));
+        }
+      } catch (error) {
+        console.error('Failed to check saved status:', error);
+      }
+    };
+    if (id) checkSaved();
+  }, [id]);
 
   const loadDocuments = async () => {
     try {

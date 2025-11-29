@@ -12,4 +12,7 @@ router.get('/internships', doctorController.getDoctorInternships);
 // GET /api/doctors/internship/:internshipId/applicants
 router.get('/internship/:internshipId/applicants', doctorController.getInternshipApplicants);
 
+// GET /api/doctors/trainees
+router.get('/trainees', doctorController.getMyTrainees);
+
 module.exports = router;

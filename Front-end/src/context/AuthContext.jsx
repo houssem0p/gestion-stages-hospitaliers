@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
+      console.log('Attempting login with:', { email, passwordLength: password?.length });
       const response = await authAPI.post('/auth/login', { email, password });
       
       if (response.data.success) {
@@ -48,7 +49,14 @@ export const AuthProvider = ({ children }) => {
         return true;
       }
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      console.error('Login error details:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message,
+        fullError: error
+      });
+      const message = error.response?.data?.message || error.message || 'Login failed';
       throw new Error(message);
     }
   };

@@ -10,19 +10,19 @@ router.get('/', hospitalController.listAllInternships);
 // Get single internship by id
 router.get('/:id', hospitalController.getInternshipById);
 
-// Update internship
-router.put('/:id', hospitalController.updateInternship);
+// Update internship (authenticated)
+router.put('/:id', verifyToken, hospitalController.updateInternship);
 
-// Archive internship (set status = 'archived')
-router.put('/:id/archive', hospitalController.archiveInternship);
+// Archive internship (set status = 'archived') (authenticated)
+router.put('/:id/archive', verifyToken, hospitalController.archiveInternship);
 
-// Get applications for an internship
-router.get('/:id/applications', hospitalController.getInternshipApplications);
+// Get applications for an internship (authenticated)
+router.get('/:id/applications', verifyToken, hospitalController.getInternshipApplications);
 
-// Student apply to internship
+// Student apply to internship (authenticated)
 router.post('/:id/apply', verifyToken, applicationsController.applyToInternship);
 
-// Update application status (approve/reject)
-router.post('/applications/:id/status', hospitalController.updateApplicationStatus);
+// Update application status (approve/reject) (authenticated)
+router.post('/applications/:id/status', verifyToken, hospitalController.updateApplicationStatus);
 
 module.exports = router;

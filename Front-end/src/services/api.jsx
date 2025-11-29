@@ -18,6 +18,17 @@ authAPI.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Log request for debugging
+    if (config.url?.includes('/auth/login')) {
+      console.log('Sending login request:', {
+        url: config.url,
+        baseURL: config.baseURL,
+        fullURL: `${config.baseURL}${config.url}`,
+        method: config.method,
+        data: config.data,
+        headers: config.headers
+      });
+    }
     return config;
   },
   (error) => {

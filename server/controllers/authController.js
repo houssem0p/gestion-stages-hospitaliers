@@ -5,13 +5,19 @@ const jwt = require('jsonwebtoken');
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    // Debugging: log incoming values in development
-    if (process.env.NODE_ENV === 'development') {
-      console.debug('Auth.login - incoming body:', { email, passwordType: typeof password });
-    }
+    // Debugging: log incoming values
+    console.log('Auth.login - Request received:', {
+      body: req.body,
+      email: email,
+      passwordProvided: !!password,
+      passwordLength: password?.length,
+      headers: req.headers['content-type']
+    });
 
-    if (!email || !password)
+    if (!email || !password) {
+      console.log('Auth.login - Missing credentials:', { hasEmail: !!email, hasPassword: !!password });
       return res.status(400).json({ success:false, message:'Email and password required' });
+    }
 
     const user = await User.findOne({ where: { email } });
     if (!user) {

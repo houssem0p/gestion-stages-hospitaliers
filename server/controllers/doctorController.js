@@ -123,8 +123,51 @@ const getInternshipApplicants = async (req, res) => {
   }
 };
 
+// Get doctor's trainees (students assigned to doctor's internships)
+const getMyTrainees = async (req, res) => {
+  try {
+    const doctorId = req.user?.userId || req.user?.id;
+    if (!doctorId) return res.status(401).json({ success: false, message: 'Authentication required' });
+
+    const trainees = await sequelize.query(
+      `SELECT DISTINCT
+         ip.student_id,
+         u.id,
+         u.first_name,
+         u.last_name,
+         u.email,
+         sp.matricule,
+         sp.speciality as student_speciality,
+         sp.academic_year,
+         ip.internship_id,
+         o.title as internship_title,
+         o.hospital,
+         o.speciality,
+         o.startDate,
+         o.endDate,
+         ip.status,
+         ip.assigned_at
+       FROM internship_participants ip
+       JOIN offers o ON ip.internship_id = o.id
+       LEFT JOIN users u ON ip.student_id = u.id
+       LEFT JOIN student_profiles sp ON ip.student_id = sp.user_id
+       WHERE (ip.doctor_id = ? OR o.doctor_id = ?) 
+         AND ip.student_id IS NOT NULL 
+         AND ip.status = 'active'
+       ORDER BY ip.assigned_at DESC`,
+      { replacements: [doctorId, doctorId], type: QueryTypes.SELECT }
+    );
+
+    res.json({ success: true, data: trainees || [] });
+  } catch (error) {
+    console.error('Error fetching doctor trainees', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch trainees' });
+  }
+};
+
 module.exports = {
   getDoctorInternships,
-  getInternshipApplicants
+  getInternshipApplicants,
+  getMyTrainees
 };
 
